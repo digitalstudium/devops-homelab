@@ -7,9 +7,9 @@ WORKERS_PER_CLUSTER=1
 CP_CPU=2
 CP_RAM=2048
 CP_DISK=10
-WORKER_CPU=2
-WORKER_RAM=4096
-WORKER_DISK=20
+WORKER_CPU=4
+WORKER_RAM=8192
+WORKER_DISK=40
 
 ISO="metal-amd64.iso"
 ISO_URL="https://github.com/siderolabs/talos/releases/latest/download/${ISO}"
