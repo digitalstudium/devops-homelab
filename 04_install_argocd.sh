@@ -1,0 +1,21 @@
+export KUBECONFIG=/home/ds/talos-kvm/cluster-1/kubeconfig
+helm repo add argo https://argoproj.github.io/argo-helm
+cat > /tmp/argocd-values.yaml << 'EOF'
+global:
+  domain: argocd.cluster-1.example.com
+  
+configs:
+  params:
+    server.insecure: "true"
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+EOF
+
+helm upgrade --install --create-namespace argo argo/argo-cd -n argocd -f /tmp/argocd-values.yaml
+
+# argocd admin initial-password -n argocd
+# argocd login argocd.cluster-1.example.com
+# argocd cluster add admin@cluster-2

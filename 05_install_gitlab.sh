@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: http://helm.digitalstudium.com
-    targetRevision: 0.3.0
+    targetRevision: 0.3.1
     chart: generic-chart
     helm:
       valuesObject:
@@ -18,7 +18,7 @@ spec:
         ingress:
           className: traefik
           hosts:
-          - host: gitlab.example.com
+          - host: gitlab.cluster-1.example.com
             paths:
             - path: /
               pathType: Prefix	  
