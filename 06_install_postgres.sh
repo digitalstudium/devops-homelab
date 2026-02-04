@@ -10,7 +10,7 @@ cat <<EOF | kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres-operator-$CLUSTER_NUM
+  name: postgres-operator-cluster-$CLUSTER_NUM
   namespace: argocd
 spec:
   project: default
@@ -35,7 +35,7 @@ cat <<EOF | kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres-operator-ui-$CLUSTER_NUM
+  name: postgres-operator-ui-cluster-$CLUSTER_NUM
   namespace: argocd
 spec:
   project: default

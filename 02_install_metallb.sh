@@ -13,12 +13,12 @@ for c in ~/talos-kvm/cluster-*/kubeconfig; do
   fi
 
   POOL_CIDR="192.168.${THIRD_OCTET}.0/24"
-  RANGE_START="192.168.${THIRD_OCTET}.201"
+  RANGE_START="192.168.${THIRD_OCTET}.1"
   RANGE_END="192.168.${THIRD_OCTET}.254"
 
   # Install MetalLB (idempotent)
-  kubectl --kubeconfig="$c" apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.3/config/manifests/metallb-native.yaml >/dev/null 2>&1 || true
-  kubectl --kubeconfig="$c" -n metallb-system wait --for=condition=Available deploy/controller --timeout=180s 2>/dev/null || sleep 30
+  kubectl --kubeconfig="$c" apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.3/config/manifests/metallb-native.yaml
+  kubectl --kubeconfig="$c" -n metallb-system wait --for=condition=Available deploy/controller --timeout=180s
 
   # Apply config
   kubectl --kubeconfig="$c" apply -f - <<EOF
