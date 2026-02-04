@@ -3,13 +3,14 @@ set -euo pipefail
 
 # --- resources ---
 CLUSTER_COUNT=2
-WORKERS_PER_CLUSTER=1
+WORKERS_PER_CLUSTER=3
 CP_CPU=2
 CP_RAM=2048
-CP_DISK=10
-WORKER_CPU=4
-WORKER_RAM=8192
-WORKER_DISK=40
+CP_SYSTEM_DISK=10
+WORKER_CPU=2
+WORKER_RAM=4096
+WORKER_SYSTEM_DISK=10
+WORKER_STORAGE_DISK=10
 
 ISO="metal-amd64.iso"
 ISO_URL="https://github.com/siderolabs/talos/releases/latest/download/${ISO}"
@@ -97,14 +98,17 @@ setup_permissions() {
   fi
 }
 
-# --- resource check + summary (fails hard like your original) ---
+# --- resource check + summary (updated for worker-only storage disks) ---
 check_resources() {
   step "Checking system resources..."
+  echo "Base directory: $BASE_DIR"
+  echo
 
   local total_cpu total_ram total_disk
   total_cpu=$(( (CP_CPU + WORKER_CPU * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))
   total_ram=$(( (CP_RAM + WORKER_RAM * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))     # MB
-  total_disk=$(( (CP_DISK + WORKER_DISK * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))  # GB (logical)
+  # Only workers get storage disks, control planes don't
+  total_disk=$(( (CP_SYSTEM_DISK * CLUSTER_COUNT) + ((WORKER_SYSTEM_DISK + WORKER_STORAGE_DISK) * WORKERS_PER_CLUSTER * CLUSTER_COUNT) ))
 
   local avail_cpu avail_ram avail_disk
   avail_cpu=$(nproc)
@@ -114,15 +118,15 @@ check_resources() {
 
   info "=== PLAN ==="
   info "Clusters: $CLUSTER_COUNT | Workers/cluster: $WORKERS_PER_CLUSTER"
-  info "Per CP: ${CP_CPU} vCPU, ${CP_RAM}MB ($(mb2gb "$CP_RAM")GB), ${CP_DISK}GB disk"
-  info "Per W : ${WORKER_CPU} vCPU, ${WORKER_RAM}MB ($(mb2gb "$WORKER_RAM")GB), ${WORKER_DISK}GB disk"
+  info "Per control plane node: ${CP_CPU} vCPU, $(mb2gb "$CP_RAM")GB RAM, ${CP_SYSTEM_DISK}GB system disk"
+  info "Per worker node : ${WORKER_CPU} vCPU, $(mb2gb "$WORKER_RAM")GB RAM, ${WORKER_SYSTEM_DISK}GB system disk + ${WORKER_STORAGE_DISK}GB storage disk"
   info "=== TOTAL REQUESTED ==="
   info "CPU:  $total_cpu vCPU"
-  info "RAM:  $total_ram MB ($(mb2gb "$total_ram")GB)"
+  info "RAM:  $(mb2gb "$total_ram")GB"
   info "Disk: $total_disk GB"
   info "=== AVAILABLE ==="
   info "CPU cores: $avail_cpu"
-  info "RAM:       $avail_ram MB ($(mb2gb "$avail_ram")GB)"
+  info "RAM:       $(mb2gb "$avail_ram")GB"
   info "Disk free: $avail_disk GB (checked at $BASE_DIR)"
   echo
 
@@ -222,20 +226,21 @@ apply_config() {
   retry 30 10 sudo -u "$SUDO_USER" talosctl apply-config --insecure --nodes "$ip" --file "$file" >/dev/null
 }
 
-make_vm() {
-  local name="$1" ram="$2" cpu="$3" disk="$4" size="$5"
+# --- Updated VM creation functions ---
+make_controlplane_vm() {
+  local name="$1" ram="$2" cpu="$3" system_disk="$4" size="$5"
 
-  step "Creating VM: $name (cpu=$cpu ram=${ram}MB disk=${size}G)"
-  [[ -f "$disk" ]] || sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$disk" "${size}G" >/dev/null
-  chown "$SUDO_USER:$SUDO_USER" "$disk" 2>/dev/null || true
-  chmod 644 "$disk" 2>/dev/null || true
+  step "Creating Control Plane VM: $name (cpu=$cpu ram=${ram}MB system disk=${size}G)"
+  [[ -f "$system_disk" ]] || sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$system_disk" "${size}G" >/dev/null
+  chown "$SUDO_USER:$SUDO_USER" "$system_disk" 2>/dev/null || true
+  chmod 644 "$system_disk" 2>/dev/null || true
 
   virt-install \
     --virt-type kvm \
     --name "$name" \
     --ram "$ram" \
     --vcpus "$cpu" \
-    --disk "path=$disk,bus=virtio,size=$size,format=qcow2" \
+    --disk "path=$system_disk,bus=virtio,size=$size,format=qcow2" \
     --cdrom "$BASE_DIR/$ISO" \
     --os-variant=linux2022 \
     --network "network=$NETWORK_NAME" \
@@ -243,7 +248,40 @@ make_vm() {
     --noautoconsole \
     --boot hd,cdrom
 
-  ok "VM created: $name"
+  ok "Control Plane VM created: $name"
+}
+
+make_worker_vm() {
+  local name="$1" ram="$2" cpu="$3" system_disk="$4" size="$5"
+
+  step "Creating Worker VM: $name (cpu=$cpu ram=${ram}MB system disk=${size}G + storage disk: ${WORKER_STORAGE_DISK}G)"
+
+  # Create OS disk
+  [[ -f "$system_disk" ]] || sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$system_disk" "${size}G" >/dev/null
+  chown "$SUDO_USER:$SUDO_USER" "$system_disk" 2>/dev/null || true
+  chmod 644 "$system_disk" 2>/dev/null || true
+
+  # Create storage disk disk (only for workers)
+  local storage_disk="${system_disk%.*}-storage.qcow2"
+  sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$storage_disk" "${WORKER_STORAGE_DISK}G" >/dev/null
+  chown "$SUDO_USER:$SUDO_USER" "$storage_disk" 2>/dev/null || true
+  chmod 644 "$storage_disk" 2>/dev/null || true
+
+  virt-install \
+    --virt-type kvm \
+    --name "$name" \
+    --ram "$ram" \
+    --vcpus "$cpu" \
+    --disk "path=$system_disk,bus=virtio,size=$size,format=qcow2" \
+    --disk "path=$storage_disk,bus=virtio,size=$WORKER_STORAGE_DISK,format=qcow2" \
+    --cdrom "$BASE_DIR/$ISO" \
+    --os-variant=linux2022 \
+    --network "network=$NETWORK_NAME" \
+    --graphics none \
+    --noautoconsole \
+    --boot hd,cdrom
+
+  ok "Worker VM created: $name"
 }
 
 # --- health check ---
@@ -266,10 +304,7 @@ main() {
   setup_permissions
   check_resources
 
-  echo "Base directory: $BASE_DIR"
-  echo "Network: $NETWORK_NAME"
-  echo
-  read -r -p "Proceed? (type 'yes'): " confirm
+  read -r -p "Proceed? (type yes/no): " confirm
   [[ "$confirm" == "yes" ]] || die "Cancelled"
 
   step "Preparing working directory..."
@@ -299,10 +334,12 @@ main() {
     chown -R "$SUDO_USER:$SUDO_USER" "$BASE_DIR/cluster-$c" || true
     chmod 755 "$BASE_DIR/cluster-$c" "$BASE_DIR/cluster-$c/configs" 2>/dev/null || true
 
-    make_vm "cp-$c" "$CP_RAM" "$CP_CPU" "$BASE_DIR/cluster-$c/cp-disk.qcow2" "$CP_DISK"
+    # Control plane (NO storage disk)
+    make_controlplane_vm "cp-$c" "$CP_RAM" "$CP_CPU" "$BASE_DIR/cluster-$c/cp-disk.qcow2" "$CP_SYSTEM_DISK"
 
+    # Workers (WITH storage disk)
     for ((w=1; w<=WORKERS_PER_CLUSTER; w++)); do
-      make_vm "worker-$c-$w" "$WORKER_RAM" "$WORKER_CPU" "$BASE_DIR/cluster-$c/worker-$w-disk.qcow2" "$WORKER_DISK"
+      make_worker_vm "worker-$c-$w" "$WORKER_RAM" "$WORKER_CPU" "$BASE_DIR/cluster-$c/worker-$w-disk.qcow2" "$WORKER_SYSTEM_DISK"
     done
   done
   ok "All VMs defined and started"
@@ -343,7 +380,20 @@ main() {
 
     step "Cluster $c: applying config (workers)"
     for ip in ${WORKER_IPS["$c"]}; do
-      apply_config "$ip" "$cfgdir/worker.yaml" || warn "Worker config failed for $ip"
+      # After generating configs, modify worker.yaml
+      step "Cluster $c: adding storage to worker config of $ip"
+      cat > patch.yaml <<EOF
+machine:
+  disks:
+    - device: /dev/vdb
+      partitions:
+        - mountpoint: /var/mnt/local-path-provisioner
+EOF
+      talosctl machineconfig patch $cfgdir/worker.yaml --patch @patch.yaml -o $cfgdir/worker-with-storage.yaml
+      worker_config=$cfgdir/worker-with-storage.yaml
+
+      # Then apply the merged config
+      apply_config "$ip" "$worker_config" || warn "Worker config failed for $ip"
     done
 
     step "Cluster $c: bootstrap + kubeconfig"
@@ -384,6 +434,7 @@ main() {
   ok "CREATION COMPLETE"
   info "Network: $NETWORK_NAME"
   info "Base dir: $BASE_DIR"
+  info "Worker storage disks: ${WORKER_STORAGE_DISK}GB each"
   echo "=== Cluster IPs ==="
   for ((c=1; c<=CLUSTER_COUNT; c++)); do
     echo "Cluster $c:"

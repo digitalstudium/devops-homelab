@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: http://helm.digitalstudium.com
-    targetRevision: 0.4.0
+    targetRevision: 0.5.0
     chart: generic-chart
     helm:
       valuesObject:
@@ -20,8 +20,8 @@ spec:
             memory: "64Mi"
             cpu: "250m"
           limits:
-            memory: "3Gi"
-            cpu: "2"
+            memory: "2Gi"
+            cpu: "1"
         ingress:
           className: traefik
           hosts:
@@ -30,8 +30,7 @@ spec:
             - path: /
               pathType: Prefix
         env:
-        - name: GITLAB_OMNIBUS_CONFIG
-          value: |
+          GITLAB_OMNIBUS_CONFIG: |
             external_url 'http://gitlab.cluster-1.example.com'
             puma['worker_processes'] = 0
             sidekiq['concurrency'] = 10
@@ -49,15 +48,6 @@ spec:
                   'max_per_repo' => 3,
                 },
               ],
-              cgroups: {
-                repositories: {
-                  count: 2,
-                },
-                mountpoint: '/sys/fs/cgroup',
-                hierarchy_root: 'gitaly',
-                memory_bytes: 500000,
-                cpu_shares: 512,
-              },
             }
             gitaly['env'] = {
               'MALLOC_CONF' => 'dirty_decay_ms:1000,muzzy_decay_ms:1000',
@@ -72,4 +62,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
 EOF
