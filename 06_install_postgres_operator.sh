@@ -45,12 +45,20 @@ spec:
     chart: postgres-operator-ui
     helm:
       valuesObject:
+        envs:
+          targetNamespace: "*"      
         ingress:
           enabled: true
           ingressClassName: "traefik"
+          annotations:
+            cert-manager.io/cluster-issuer: my-ca-issuer          
           hosts:
             - host: postgres.cluster-$CLUSTER_NUM.example.com
               paths: ["/"]
+          tls:
+            - secretName: postgres-ui-tls
+              hosts:
+                - postgres.cluster-$CLUSTER_NUM.example.com           
   destination:
     server: $SERVER_URL
     namespace: postgres

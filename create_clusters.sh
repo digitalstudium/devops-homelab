@@ -246,7 +246,8 @@ make_controlplane_vm() {
     --network "network=$NETWORK_NAME" \
     --graphics none \
     --noautoconsole \
-    --boot hd,cdrom
+    --boot hd,cdrom \
+    --autostart
 
   ok "Control Plane VM created: $name"
 }
@@ -279,7 +280,8 @@ make_worker_vm() {
     --network "network=$NETWORK_NAME" \
     --graphics none \
     --noautoconsole \
-    --boot hd,cdrom
+    --boot hd,cdrom \
+    --autostart
 
   ok "Worker VM created: $name"
 }
