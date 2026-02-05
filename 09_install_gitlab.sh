@@ -54,7 +54,16 @@ spec:
         nginx-ingress:
           enabled: false
         upgradeCheck:
-          enabled: false          
+          enabled: false
+        webservice:
+          minReplicas: 1
+          maxReplicas: 1
+        sidekiq:
+          minReplicas: 1
+          maxReplicas: 1
+        registry:
+          minReplicas: 1
+          maxReplicas: 1
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab

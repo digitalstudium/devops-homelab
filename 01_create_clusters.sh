@@ -4,10 +4,10 @@ set -euo pipefail
 # --- resources ---
 CLUSTER_COUNT=2
 WORKERS_PER_CLUSTER=3
-CP_CPU=2
-CP_RAM=2048
+CP_CPU=4
+CP_RAM=4096
 CP_SYSTEM_DISK=10
-WORKER_CPU=2
+WORKER_CPU=4
 WORKER_RAM=4096
 WORKER_SYSTEM_DISK=10
 WORKER_STORAGE_DISK=10
@@ -130,8 +130,8 @@ check_resources() {
   info "Disk free: $avail_disk GB (checked at $BASE_DIR)"
   echo
 
-  (( total_cpu > avail_cpu )) && warn "CPU overcommit: requested $total_cpu vCPU > $avail_cpu cores (allowed but slower)"
-  (( total_ram <= avail_ram )) || die "Insufficient RAM: need ${total_ram}MB, have ${avail_ram}MB"
+  (( total_cpu > avail_cpu )) && warn "CPU overcommit: requested $total_cpu vCPU > $avail_cpu cores"
+  (( total_ram > avail_ram )) && warn "RAM overcommit: requested $(mb2gb "$total_ram")GB > available $(mb2gb "$avail_ram")GB"
   (( total_disk <= avail_disk )) || die "Insufficient disk: need ${total_disk}GB free, have ${avail_disk}GB"
 
   [[ -e /dev/kvm ]] || die "KVM not available (/dev/kvm missing)"
