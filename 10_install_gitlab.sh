@@ -86,6 +86,8 @@ spec:
           master:
             persistence:
               size: 1Gi
+        gitlab-runner:
+          certsSecretName: gitlab-tls-cert-for-runner
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab
@@ -101,5 +103,7 @@ EOF
 
 echo -e "${YELLOW}[gitlab] Waiting for ArgoCD sync for cluster-1${NC}"
 kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/gitlab -n argocd --timeout=300s
+
+kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig -n gitlab create secret generic gitlab-tls-cert-for-runner --from-file=gitlab.cluster-1.example.com.crt=cluster-1-ca.crt
 
 echo -e "${GREEN}Gitlab deployed to cluster-1 successfully!${NC}"
