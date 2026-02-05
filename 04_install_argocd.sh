@@ -24,3 +24,21 @@ helm --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig upgrade --install --creat
 # argocd cluster add admin@cluster-1
 # export KUBECONFIG=/home/ds/talos-kvm/cluster-2/kubeconfig
 # argocd cluster add admin@cluster-2
+#
+export KUBECONFIG="/home/ds/talos-kvm/$cluster/kubeconfig"
+ARGOCD_SERVER="argocd.cluster-1.example.com"
+INITIAL_PASSWORD=$(kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig \
+  -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d)
+
+# Login (add --insecure if using self-signed certs)
+argocd login "$ARGOCD_SERVER" \
+  --username admin \
+  --password "$INITIAL_PASSWORD" \
+  --insecure  # Remove in production with valid TLS
+
+# Add clusters
+for cluster in cluster-1 cluster-2; do
+  export KUBECONFIG="/home/ds/talos-kvm/$cluster/kubeconfig"
+  argocd cluster add "admin@$cluster" --insecure
+done

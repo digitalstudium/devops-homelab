@@ -46,6 +46,6 @@ EOF
 echo -e "${YELLOW}[spegel] Waiting for ArgoCD sync for cluster-$CLUSTER_NUM...${NC}"
 kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/spegel-cluster-$CLUSTER_NUM -n argocd --timeout=300s
 
-echo -e "${YELLOW}[spegel] Waiting for deployment in cluster-$CLUSTER_NUM...${NC}"
-kubectl --kubeconfig="$c" wait --for=condition=available --timeout=300s deployment/spegel-cluster-$CLUSTER_NUM -n spegel
+echo -e "${YELLOW}[spegel] Waiting for daemonset in cluster-$CLUSTER_NUM...${NC}"
+kubectl --kubeconfig="$c" rollout status daemonset spegel-cluster-$CLUSTER_NUM -n spegel --timeout 60s
 done

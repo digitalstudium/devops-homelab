@@ -26,7 +26,6 @@ spec:
           webservice:
             ingress:
               tls:
-                enabled: true
                 secretName: gitlab-webservice-ingress-tls
             hpa:
               minReplicas: 1
@@ -37,6 +36,9 @@ spec:
           gitaly:
             persistence:
               size: 3Gi
+          sidekiq:
+            minReplicas: 1
+            maxReplicas: 1
         global:
           appConfig:
             lfs:
@@ -50,17 +52,20 @@ spec:
           psql:
             host: postgres-cluster
             database: gitlab
-            username: gitlab
+            username: postgres
             password:
-              secret: gitlab.postgres-cluster.credentials.postgresql.acid.zalan.do
+              secret: postgres.postgres-cluster.credentials.postgresql.acid.zalan.do
               key: password
           kas:
             enabled: false
           minio:
             enabled: false
           hosts:
-            domain: gitlab.cluster-1.example.com
+            domain: cluster-1.example.com
           ingress:
+            tls:
+              enabled: true
+              external: true
             configureCertmanager: false
             class: traefik
             annotations:
@@ -76,10 +81,6 @@ spec:
           enabled: false
         registry:
           enabled: false
-        sidekiq:
-          hpa:
-            minReplicas: 1
-            maxReplicas: 1
         redis:
           master:
             persistence:

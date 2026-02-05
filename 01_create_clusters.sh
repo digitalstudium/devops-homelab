@@ -11,7 +11,7 @@ CONTROL_PLANE_NODE_SYSTEM_DISK=7  # сколько диска для докер 
 
 WORKER_NODE_CPUS=4  # сколько CPU ядер на каждой ворокер ноде?
 WORKER_NODE_RAM=4096  # сколько RAM на каждой ворокер ноде?
-WORKER_NODE_SYSTEM_DISK=13  # сколько диска для докер образов и ephemeral storage?
+WORKER_NODE_SYSTEM_DISK=15  # сколько диска для докер образов и ephemeral storage?
 WORKER_NODE_STORAGE_DISK=10 # сколько диска для PVC?
 
 ISO="metal-amd64.iso"
@@ -22,7 +22,8 @@ SUDO_USER=${SUDO_USER:-}
 [[ $EUID -eq 0 ]] || { echo "[ERROR] Run with sudo/root"; exit 1; }
 [[ -n "$SUDO_USER" ]] || { echo "[ERROR] Run via sudo from a normal user (SUDO_USER empty)"; exit 1; }
 USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-BASE_DIR="${USER_HOME}/talos-kvm"
+# BASE_DIR="${USER_HOME}/talos-kvm"
+BASE_DIR="/var/talos-kvm"
 
 # --- network (kept compatible with your working/original script) ---
 NETWORK_NAME="talos-net"

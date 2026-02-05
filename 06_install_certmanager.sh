@@ -53,19 +53,19 @@ EOF
   kubectl --kubeconfig="$c" wait --for=condition=available --timeout=300s deployment/cert-manager-$CLUSTER_NUM-cainjector -n cert-manager
   kubectl --kubeconfig="$c" wait --for=condition=available --timeout=300s deployment/cert-manager-$CLUSTER_NUM-webhook -n cert-manager
 
-  echo -e "${YELLOW}Waiting for cert-manager startup API check job in cluster-$CLUSTER_NUM...${NC}"
-  # Wait for the job to exist first
-  timeout=60
-  while [ $timeout -gt 0 ]; do
-    if kubectl --kubeconfig="$c" get job cert-manager-$CLUSTER_NUM-startupapicheck -n cert-manager &>/dev/null; then
-      break
-    fi
-    sleep 2
-    timeout=$((timeout - 2))
-  done
+  # echo -e "${YELLOW}Waiting for cert-manager startup API check job in cluster-$CLUSTER_NUM...${NC}"
+  # # Wait for the job to exist first
+  # timeout=60
+  # while [ $timeout -gt 0 ]; do
+  #   if kubectl --kubeconfig="$c" get job cert-manager-$CLUSTER_NUM-startupapicheck -n cert-manager &>/dev/null; then
+  #     break
+  #   fi
+  #   sleep 2
+  #   timeout=$((timeout - 2))
+  # done
 
-  # Wait for the job to complete
-  kubectl --kubeconfig="$c" wait --for=condition=complete --timeout=300s job/cert-manager-$CLUSTER_NUM-startupapicheck -n cert-manager
+  # # Wait for the job to complete
+  # kubectl --kubeconfig="$c" wait --for=condition=complete --timeout=300s job/cert-manager-$CLUSTER_NUM-startupapicheck -n cert-manager
 
   echo "Creating cert-manager resources in cluster-$CLUSTER_NUM..."
   # Apply with validate=false to bypass webhook temporarily
@@ -103,7 +103,29 @@ spec:
     secretName: root-secret
 EOF
 
-  kubectl --kubeconfig="$c" get secret -n cert-manager root-secret -o jsonpath='{.data.ca\.crt}' | base64 --decode > cluster-$CLUSTER_NUM-ca.crt
+  echo -e "${YELLOW}Waiting for root-secret to be populated in cluster-$CLUSTER_NUM...${NC}"
+  timeout=120
+  while [ $timeout -gt 0 ]; do
+    # Check if secret exists AND has ca.crt data
+    CRT=$(kubectl --kubeconfig="$c" get secret -n cert-manager root-secret -o jsonpath='{.data.ca\.crt}' 2>/dev/null || echo "")
+    
+    if [ -n "$CRT" ] && [ "$CRT" != "null" ] && [ ${#CRT} -gt 4 ]; then  # base64 "null" or empty is invalid
+      echo "$CRT" | base64 --decode > "cluster-$CLUSTER_NUM-ca.crt"
+      echo -e "${GREEN}CA certificate extracted successfully${NC}"
+      break
+    fi
+    
+    sleep 2
+    timeout=$((timeout - 2))
+  done
+  
+  if [ $timeout -le 0 ]; then
+    echo -e "${RED}ERROR: Timed out waiting for root-secret to be populated${NC}" >&2
+    echo "Debug info:" >&2
+    kubectl --kubeconfig="$c" describe certificate my-selfsigned-ca -n cert-manager >&2 || true
+    kubectl --kubeconfig="$c" get secret -n cert-manager root-secret -o yaml >&2 || true
+    exit 1
+  fi
   echo -e "${GREEN}=== Finished cluster-$CLUSTER_NUM ===${NC}"
 }
 
@@ -119,8 +141,7 @@ done
 # Wait for all background jobs to complete
 wait
 
+sudo cp *.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+
 echo -e "${GREEN}Cert manager deployed to all clusters successfully!${NC}"
-# import to browser, then check greenish
-# sudo mv *.crt /usr/local/share/ca-certificates/
-# sudo update-ca-certificates
-# then check with curl
