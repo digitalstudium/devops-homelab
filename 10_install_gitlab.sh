@@ -1,3 +1,11 @@
+# Add color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}=== Deploying gitlab to cluster-1 ===${NC}"
 cat <<EOF | kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -15,6 +23,20 @@ spec:
         gitlab:
           toolbox:
             enabled: false
+          webservice:
+            ingress:
+              tls:
+                enabled: true
+                secretName: gitlab-webservice-ingress-tls
+            hpa:
+              minReplicas: 1
+              maxReplicas: 1
+          gitlab-shell:
+            minReplicas: 1
+            maxReplicas: 1
+          gitaly:
+            persistence:
+              size: 3Gi
         global:
           appConfig:
             lfs:
@@ -43,9 +65,6 @@ spec:
             class: traefik
             annotations:
               cert-manager.io/cluster-issuer: my-ca-issuer
-            tls:
-              enabled: true
-              secretName: gitlab-ingress-tls
         installCertmanager: false
         prometheus:
           install: false
@@ -55,15 +74,16 @@ spec:
           enabled: false
         upgradeCheck:
           enabled: false
-        webservice:
-          minReplicas: 1
-          maxReplicas: 1
-        sidekiq:
-          minReplicas: 1
-          maxReplicas: 1
         registry:
-          minReplicas: 1
-          maxReplicas: 1
+          enabled: false
+        sidekiq:
+          hpa:
+            minReplicas: 1
+            maxReplicas: 1
+        redis:
+          master:
+            persistence:
+              size: 1Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab
@@ -76,3 +96,8 @@ spec:
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
 EOF
+
+echo -e "${YELLOW}[gitlab] Waiting for ArgoCD sync for cluster-1${NC}"
+kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/gitlab -n argocd --timeout=300s
+
+echo -e "${GREEN}Gitlab deployed to cluster-1 successfully!${NC}"

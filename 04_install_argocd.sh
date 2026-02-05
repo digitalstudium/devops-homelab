@@ -16,8 +16,11 @@ server:
       cert-manager.io/cluster-issuer: my-ca-issuer
 EOF
 
-helm --kubeconfig=~/talos-kvm/cluster-1/kubeconfig upgrade --install --create-namespace argo argo/argo-cd -n argocd -f /tmp/argocd-values.yaml --wait
+helm --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig upgrade --install --create-namespace argo argo/argo-cd -n argocd -f /tmp/argocd-values.yaml --wait
 
+# export KUBECONFIG=/home/ds/talos-kvm/cluster-1/kubeconfig
 # argocd admin initial-password -n argocd
 # argocd login argocd.cluster-1.example.com
+# argocd cluster add admin@cluster-1
+# export KUBECONFIG=/home/ds/talos-kvm/cluster-2/kubeconfig
 # argocd cluster add admin@cluster-2

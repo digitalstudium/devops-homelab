@@ -2,15 +2,17 @@
 set -euo pipefail
 
 # --- resources ---
-CLUSTER_COUNT=2
-WORKERS_PER_CLUSTER=3
-CP_CPU=4
-CP_RAM=4096
-CP_SYSTEM_DISK=10
-WORKER_CPU=4
-WORKER_RAM=4096
-WORKER_SYSTEM_DISK=10
-WORKER_STORAGE_DISK=10
+CLUSTER_COUNT=2  # сколько кластеров?
+WORKERS_PER_CLUSTER=3  # сколько воркер-нод на каждый кластер?
+
+CONTROL_PLANE_NODE_CPUS=4  # сколько CPU ядер на каждой мастер ноде?
+CONTROL_PLANE_NODE_RAM=4096  # сколько RAM на каждой мастер ноде?
+CONTROL_PLANE_NODE_SYSTEM_DISK=7  # сколько диска для докер образов и ephemeral storage?
+
+WORKER_NODE_CPUS=4  # сколько CPU ядер на каждой ворокер ноде?
+WORKER_NODE_RAM=4096  # сколько RAM на каждой ворокер ноде?
+WORKER_NODE_SYSTEM_DISK=13  # сколько диска для докер образов и ephemeral storage?
+WORKER_NODE_STORAGE_DISK=10 # сколько диска для PVC?
 
 ISO="metal-amd64.iso"
 ISO_URL="https://github.com/siderolabs/talos/releases/latest/download/${ISO}"
@@ -105,10 +107,10 @@ check_resources() {
   echo
 
   local total_cpu total_ram total_disk
-  total_cpu=$(( (CP_CPU + WORKER_CPU * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))
-  total_ram=$(( (CP_RAM + WORKER_RAM * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))     # MB
+  total_cpu=$(( (CONTROL_PLANE_NODE_CPUS + WORKER_NODE_CPUS * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))
+  total_ram=$(( (CONTROL_PLANE_NODE_RAM + WORKER_NODE_RAM * WORKERS_PER_CLUSTER) * CLUSTER_COUNT ))     # MB
   # Only workers get storage disks, control planes don't
-  total_disk=$(( (CP_SYSTEM_DISK * CLUSTER_COUNT) + ((WORKER_SYSTEM_DISK + WORKER_STORAGE_DISK) * WORKERS_PER_CLUSTER * CLUSTER_COUNT) ))
+  total_disk=$(( (CONTROL_PLANE_NODE_SYSTEM_DISK * CLUSTER_COUNT) + ((WORKER_NODE_SYSTEM_DISK + WORKER_NODE_STORAGE_DISK) * WORKERS_PER_CLUSTER * CLUSTER_COUNT) ))
 
   local avail_cpu avail_ram avail_disk
   avail_cpu=$(nproc)
@@ -118,8 +120,8 @@ check_resources() {
 
   info "=== PLAN ==="
   info "Clusters: $CLUSTER_COUNT | Workers/cluster: $WORKERS_PER_CLUSTER"
-  info "Per control plane node: ${CP_CPU} vCPU, $(mb2gb "$CP_RAM")GB RAM, ${CP_SYSTEM_DISK}GB system disk"
-  info "Per worker node : ${WORKER_CPU} vCPU, $(mb2gb "$WORKER_RAM")GB RAM, ${WORKER_SYSTEM_DISK}GB system disk + ${WORKER_STORAGE_DISK}GB storage disk"
+  info "Per control plane node: ${CONTROL_PLANE_NODE_CPUS} vCPU, $(mb2gb "$CONTROL_PLANE_NODE_RAM")GB RAM, ${CONTROL_PLANE_NODE_SYSTEM_DISK}GB system disk"
+  info "Per worker node : ${WORKER_NODE_CPUS} vCPU, $(mb2gb "$WORKER_NODE_RAM")GB RAM, ${WORKER_NODE_SYSTEM_DISK}GB system disk + ${WORKER_NODE_STORAGE_DISK}GB storage disk"
   info "=== TOTAL REQUESTED ==="
   info "CPU:  $total_cpu vCPU"
   info "RAM:  $(mb2gb "$total_ram")GB"
@@ -255,7 +257,7 @@ make_controlplane_vm() {
 make_worker_vm() {
   local name="$1" ram="$2" cpu="$3" system_disk="$4" size="$5"
 
-  step "Creating Worker VM: $name (cpu=$cpu ram=${ram}MB system disk=${size}G + storage disk: ${WORKER_STORAGE_DISK}G)"
+  step "Creating Worker VM: $name (cpu=$cpu ram=${ram}MB system disk=${size}G + storage disk: ${WORKER_NODE_STORAGE_DISK}G)"
 
   # Create OS disk
   [[ -f "$system_disk" ]] || sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$system_disk" "${size}G" >/dev/null
@@ -264,7 +266,7 @@ make_worker_vm() {
 
   # Create storage disk disk (only for workers)
   local storage_disk="${system_disk%.*}-storage.qcow2"
-  sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$storage_disk" "${WORKER_STORAGE_DISK}G" >/dev/null
+  sudo -u "$SUDO_USER" qemu-img create -f qcow2 "$storage_disk" "${WORKER_NODE_STORAGE_DISK}G" >/dev/null
   chown "$SUDO_USER:$SUDO_USER" "$storage_disk" 2>/dev/null || true
   chmod 644 "$storage_disk" 2>/dev/null || true
 
@@ -274,7 +276,7 @@ make_worker_vm() {
     --ram "$ram" \
     --vcpus "$cpu" \
     --disk "path=$system_disk,bus=virtio,size=$size,format=qcow2" \
-    --disk "path=$storage_disk,bus=virtio,size=$WORKER_STORAGE_DISK,format=qcow2" \
+    --disk "path=$storage_disk,bus=virtio,size=$WORKER_NODE_STORAGE_DISK,format=qcow2" \
     --cdrom "$BASE_DIR/$ISO" \
     --os-variant=linux2022 \
     --network "network=$NETWORK_NAME" \
@@ -337,11 +339,11 @@ main() {
     chmod 755 "$BASE_DIR/cluster-$c" "$BASE_DIR/cluster-$c/configs" 2>/dev/null || true
 
     # Control plane (NO storage disk)
-    make_controlplane_vm "cp-$c" "$CP_RAM" "$CP_CPU" "$BASE_DIR/cluster-$c/cp-disk.qcow2" "$CP_SYSTEM_DISK"
+    make_controlplane_vm "cp-$c" "$CONTROL_PLANE_NODE_RAM" "$CONTROL_PLANE_NODE_CPUS" "$BASE_DIR/cluster-$c/cp-disk.qcow2" "$CONTROL_PLANE_NODE_SYSTEM_DISK"
 
     # Workers (WITH storage disk)
     for ((w=1; w<=WORKERS_PER_CLUSTER; w++)); do
-      make_worker_vm "worker-$c-$w" "$WORKER_RAM" "$WORKER_CPU" "$BASE_DIR/cluster-$c/worker-$w-disk.qcow2" "$WORKER_SYSTEM_DISK"
+      make_worker_vm "worker-$c-$w" "$WORKER_NODE_RAM" "$WORKER_NODE_CPUS" "$BASE_DIR/cluster-$c/worker-$w-disk.qcow2" "$WORKER_NODE_SYSTEM_DISK"
     done
   done
   ok "All VMs defined and started"
@@ -389,7 +391,13 @@ machine:
   disks:
     - device: /dev/vdb
       partitions:
-        - mountpoint: /var/mnt/local-path-provisioner
+        - mountpoint: /var/mnt/local-path-provisioner # for PVC
+  files:
+    - path: /etc/cri/conf.d/20-customization.part # for spegel https://spegel.dev/
+      op: create
+      content: |
+        [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
 EOF
       talosctl machineconfig patch $cfgdir/worker.yaml --patch @patch.yaml -o $cfgdir/worker-with-storage.yaml
       worker_config=$cfgdir/worker-with-storage.yaml
@@ -436,7 +444,7 @@ EOF
   ok "CREATION COMPLETE"
   info "Network: $NETWORK_NAME"
   info "Base dir: $BASE_DIR"
-  info "Worker storage disks: ${WORKER_STORAGE_DISK}GB each"
+  info "Worker storage disks: ${WORKER_NODE_STORAGE_DISK}GB each"
   echo "=== Cluster IPs ==="
   for ((c=1; c<=CLUSTER_COUNT; c++)); do
     echo "Cluster $c:"

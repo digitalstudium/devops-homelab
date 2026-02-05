@@ -1,7 +1,14 @@
+# Add color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
 # Deploy to all clusters
 for c in ~/talos-kvm/cluster-*/kubeconfig; do
   CLUSTER_NUM=$(echo "$c" | grep -oP 'cluster-\K\d+')
-  echo "=== Deploying for cluster-$CLUSTER_NUM ==="
+  echo -e "${BLUE}=== Deploying for cluster-$CLUSTER_NUM ===${NC}"
 
   # Extract server URL from kubeconfig
   SERVER_URL=$(grep -E '^\s*server:\s*' "$c" | head -1 | sed 's/.*server:\s*//')
@@ -42,4 +49,10 @@ spec:
       labels:
         pod-security.kubernetes.io/enforce: privileged  # needed for creation of helper pod with HostPath
 EOF
+
+echo -e "${YELLOW}Waiting for ArgoCD sync for cluster-$CLUSTER_NUM...${NC}"
+kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/local-path-provisioner-cluster-$CLUSTER_NUM -n argocd --timeout=300s
+
+echo -e "${YELLOW}Waiting for local-path-provisioner deployment in cluster-$CLUSTER_NUM...${NC}"
+kubectl --kubeconfig="$c" wait --for=condition=available --timeout=300s deployment/local-path-provisioner-cluster-$CLUSTER_NUM -n local-path-storage
 done

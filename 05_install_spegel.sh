@@ -1,0 +1,51 @@
+# Add color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Deploy to all clusters
+for c in ~/talos-kvm/cluster-*/kubeconfig; do
+  CLUSTER_NUM=$(echo "$c" | grep -oP 'cluster-\K\d+')
+  echo -e "${BLUE}=== Deploying for cluster-$CLUSTER_NUM ===${NC}"
+
+  # Extract server URL from kubeconfig
+  SERVER_URL=$(grep -E '^\s*server:\s*' "$c" | head -1 | sed 's/.*server:\s*//')
+
+cat <<EOF | kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig apply -f -
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spegel-cluster-$CLUSTER_NUM
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: .
+    repoURL: oci://ghcr.io/spegel-org/helm-charts/spegel
+    targetRevision: 0.6.0
+    helm:
+      valuesObject:
+        spegel:
+          containerdRegistryConfigPath: /etc/cri/conf.d/hosts
+  destination:
+    server: $SERVER_URL
+    namespace: spegel
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged  # https://spegel.dev/docs/getting-started/#talos
+EOF
+
+echo -e "${YELLOW}[spegel] Waiting for ArgoCD sync for cluster-$CLUSTER_NUM...${NC}"
+kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/spegel-cluster-$CLUSTER_NUM -n argocd --timeout=300s
+
+echo -e "${YELLOW}[spegel] Waiting for deployment in cluster-$CLUSTER_NUM...${NC}"
+kubectl --kubeconfig="$c" wait --for=condition=available --timeout=300s deployment/spegel-cluster-$CLUSTER_NUM -n spegel
+done
