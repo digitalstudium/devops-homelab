@@ -1,3 +1,4 @@
+BASE_DIR="${BASE_DIR:-$HOME/talos-kvm}"
 # Add color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -6,7 +7,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}=== Deploying gitlab to cluster-1 ===${NC}"
-cat <<EOF | kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig apply -f -
+cat <<EOF | kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -99,6 +100,6 @@ spec:
 EOF
 
 echo -e "${YELLOW}[gitlab] Waiting for ArgoCD sync for cluster-1${NC}"
-kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/gitlab -n argocd --timeout=300s
+kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/gitlab -n argocd --timeout=300s
 
 echo -e "${GREEN}Gitlab deployed to cluster-1 successfully!${NC}"

@@ -1,3 +1,4 @@
+BASE_DIR="${BASE_DIR:-$HOME/talos-kvm}"
 # Add color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -7,8 +8,8 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}=== Deploying postgres cluster to cluster-1 ===${NC}"
 
-kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig create ns gitlab
-cat <<EOF | kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig apply -f -
+kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig create ns gitlab
+cat <<EOF | kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig apply -f -
 kind: "postgresql"
 apiVersion: "acid.zalan.do/v1"
 metadata:
@@ -44,13 +45,13 @@ echo -e "${YELLOW}[postgresql] Waiting for StatefulSet in cluster-1...${NC}"
 # Wait for the StatefulSet to exist first
 timeout=60
 while [ $timeout -gt 0 ]; do
-  if kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig get statefulset -n gitlab -o name | grep -q "postgres-cluster"; then
+  if kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig get statefulset -n gitlab -o name | grep -q "postgres-cluster"; then
     break
   fi
   sleep 2
   timeout=$((timeout - 2))
 done
 
-kubectl --kubeconfig=$HOME/talos-kvm/cluster-1/kubeconfig wait --for=condition=ready --timeout=600s pod -l cluster-name=postgres-cluster -n gitlab
+kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig wait --for=condition=ready --timeout=600s pod -l cluster-name=postgres-cluster -n gitlab
 
 echo -e "${GREEN}Postgres cluster deployed to cluster-1 successfully!${NC}"

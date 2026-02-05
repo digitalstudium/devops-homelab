@@ -1,5 +1,6 @@
+BASE_DIR="${BASE_DIR:-$HOME/talos-kvm}"
 # Deploy to all clusters
-for c in ~/talos-kvm/cluster-*/kubeconfig; do
+for c in $BASE_DIR/cluster-*/kubeconfig; do
   CLUSTER_NUM=$(echo "$c" | grep -oP 'cluster-\K\d+')
   echo "=== Deploying to cluster-$CLUSTER_NUM ==="
 

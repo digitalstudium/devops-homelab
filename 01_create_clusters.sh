@@ -22,8 +22,7 @@ SUDO_USER=${SUDO_USER:-}
 [[ $EUID -eq 0 ]] || { echo "[ERROR] Run with sudo/root"; exit 1; }
 [[ -n "$SUDO_USER" ]] || { echo "[ERROR] Run via sudo from a normal user (SUDO_USER empty)"; exit 1; }
 USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-# BASE_DIR="${USER_HOME}/talos-kvm"
-BASE_DIR="/var/talos-kvm"
+BASE_DIR="${BASE_DIR:-$USER_HOME/talos-kvm}"
 
 # --- network (kept compatible with your working/original script) ---
 NETWORK_NAME="talos-net"
