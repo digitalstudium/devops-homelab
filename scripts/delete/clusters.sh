@@ -1,19 +1,5 @@
 #!/bin/bash
 
-# Configuration - должно совпадать с 01_create-clusters.sh
-SUDO_USER=${SUDO_USER:-}
-[[ $EUID -eq 0 ]] || { echo "[ERROR] Run with sudo/root"; exit 1; }
-[[ -n "$SUDO_USER" ]] || { echo "[ERROR] Run via sudo from a normal user (SUDO_USER empty)"; exit 1; }
-USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-BASE_DIR="${BASE_DIR:-$USER_HOME/talos-kvm}"
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-
 # Function to print colored output
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
