@@ -1,19 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# --- resources ---
-CLUSTER_COUNT=2  # сколько кластеров?
-WORKERS_PER_CLUSTER=3  # сколько воркер-нод на каждый кластер?
-
-CONTROL_PLANE_NODE_CPUS=4  # сколько CPU ядер на каждой мастер ноде?
-CONTROL_PLANE_NODE_RAM=4096  # сколько RAM на каждой мастер ноде?
-CONTROL_PLANE_NODE_SYSTEM_DISK=7  # сколько диска для докер образов и ephemeral storage?
-
-WORKER_NODE_CPUS=4  # сколько CPU ядер на каждой ворокер ноде?
-WORKER_NODE_RAM=4096  # сколько RAM на каждой ворокер ноде?
-WORKER_NODE_SYSTEM_DISK=15  # сколько диска для докер образов и ephemeral storage?
-WORKER_NODE_STORAGE_DISK=10 # сколько диска для PVC?
-
 ISO="metal-amd64.iso"
 ISO_URL="https://github.com/siderolabs/talos/releases/latest/download/${ISO}"
 
@@ -25,12 +12,11 @@ USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
 BASE_DIR="${BASE_DIR:-$USER_HOME/talos-kvm}"
 
 # --- network (kept compatible with your working/original script) ---
-NETWORK_NAME="talos-net"
-NETWORK_BRIDGE="talos-br0"
-NETWORK_GATEWAY="192.168.192.1"
-NETWORK_NETMASK="255.255.0.0"
-DHCP_START="192.168.193.1"
-DHCP_END="192.168.255.254"
+NETWORK_NETMASK="255.255.248.0"
+IFS='.' read -r o1 o2 o3 o4 <<< "$NETWORK"
+NETWORK_GATEWAY="${o1}.${o2}.${o3}.1"
+DHCP_START="${o1}.${o2}.${o3}.2"
+DHCP_END="${o1}.${o2}.$((o3 + 7)).254"
 
 # --- colors/logging ---
 RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; BLUE=$'\033[0;34m'; CYAN=$'\033[0;36m'; NC=$'\033[0m'

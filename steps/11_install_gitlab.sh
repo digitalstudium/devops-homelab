@@ -1,11 +1,3 @@
-BASE_DIR="${BASE_DIR:-$HOME/talos-kvm}"
-# Add color definitions
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 echo -e "${BLUE}=== Deploying gitlab to cluster-1 ===${NC}"
 cat <<EOF | kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig apply -f -
 apiVersion: argoproj.io/v1alpha1

@@ -1,4 +1,3 @@
-BASE_DIR="${BASE_DIR:-$HOME/talos-kvm}"
 helm repo add argo https://argoproj.github.io/argo-helm
 cat > /tmp/argocd-values.yaml << 'EOF'
 global:

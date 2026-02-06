@@ -1,11 +1,3 @@
-BASE_DIR="${BASE_DIR:-$HOME/talos-kvm}"
-# Add color definitions
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 deploy_cert_manager() {
   local c="$1"
   local CLUSTER_NUM="$2"
@@ -107,17 +99,17 @@ EOF
   while [ $timeout -gt 0 ]; do
     # Check if secret exists AND has ca.crt data
     CRT=$(kubectl --kubeconfig="$c" get secret -n cert-manager root-secret -o jsonpath='{.data.ca\.crt}' 2>/dev/null || echo "")
-    
+
     if [ -n "$CRT" ] && [ "$CRT" != "null" ] && [ ${#CRT} -gt 4 ]; then  # base64 "null" or empty is invalid
       echo "$CRT" | base64 --decode > "cluster-$CLUSTER_NUM-ca.crt"
       echo -e "${GREEN}CA certificate extracted successfully${NC}"
       break
     fi
-    
+
     sleep 2
     timeout=$((timeout - 2))
   done
-  
+
   if [ $timeout -le 0 ]; then
     echo -e "${RED}ERROR: Timed out waiting for root-secret to be populated${NC}" >&2
     echo "Debug info:" >&2

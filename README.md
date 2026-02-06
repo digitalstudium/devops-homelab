@@ -1,17 +1,7 @@
 # DevOps home lab
 
-System Requirements:
+Требования:
 
-- 8 CPU
-- 12 Gi of memory
-- 60 Gi of disks
-
-For arranging home lab, just run scripts one after another, keeping in mind its prefix (`01_`, `02_` etc.)
-
-Components of home lab:
-- MetalLB
-- Traefik ingress controller
-- ArgoCD
-- Gitlab
-- VictoriaMetrics + Grafana
-...
+1. sudo должен быть без пароля ALL=(ALL) NOPASSWD: ALL
+2. установленный virt-manager: sudo apt install virt-manager
+3. установленные kubectl, helm, talosctl
