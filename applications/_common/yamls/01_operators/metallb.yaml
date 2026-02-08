@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: cert-manager
+  name: metallb
   namespace: argocd
 spec:
   generators:
@@ -11,20 +11,18 @@ spec:
             argocd.argoproj.io/secret-type: cluster
   template:
     metadata:
-      name: "cert-manager-{{name}}"
+      name: "metallb-native-{{name}}" # name is the cluster name
     spec:
       project: default
       source:
-        repoURL: https://charts.jetstack.io
-        targetRevision: v1.19.3
-        chart: cert-manager
-        helm:
-          values: |
-            crds:
-              enabled: true
+        repoURL: https://github.com/metallb/metallb
+        targetRevision: v0.15.3
+        path: config/manifests
+        directory:
+          include: metallb-native.yaml
       destination:
-        server: "{{server}}" #
-        namespace: cert-manager
+        server: "{{server}}"
+        namespace: metallb-system
       syncPolicy:
         automated:
           prune: true
