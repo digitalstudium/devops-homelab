@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 IFS='.' read -r o1 o2 o3 o4 <<< "$NETWORK"
 

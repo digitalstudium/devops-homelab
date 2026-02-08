@@ -1,2 +1,3 @@
 *.tgz
 *.crt
+__pycache__
