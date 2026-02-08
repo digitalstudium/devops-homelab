@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: postgres-operator-ui
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: "postgres-operator-ui-{{name}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+        targetRevision: 1.15.1
+        chart: postgres-operator-ui
+        helm:
+          values: |
+            envs:
+              targetNamespace: "*"
+            ingress:
+              enabled: true
+              ingressClassName: "traefik"
+              annotations:
+                cert-manager.io/cluster-issuer: my-ca-issuer
+              hosts:
+                - host: postgres.{{name}}.example.com
+                  paths:
+                    - "/"
+              tls:
+                - secretName: postgres-ui-tls
+                  hosts:
+                    - postgres.{{name}}.example.com
+      destination:
+        server: "{{server}}"
+        namespace: postgres
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true

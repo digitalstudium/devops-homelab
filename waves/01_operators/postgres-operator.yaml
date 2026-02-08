@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: postgres-operator
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: "postgres-operator-{{name}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+        targetRevision: 1.15.1
+        chart: postgres-operator
+      destination:
+        server: "{{server}}"
+        namespace: postgres
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true

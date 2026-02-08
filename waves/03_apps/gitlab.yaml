@@ -1,5 +1,3 @@
-echo -e "${BLUE}=== Deploying gitlab to cluster-1 ===${NC}"
-cat <<EOF | kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -91,11 +89,3 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
-EOF
-
-echo -e "${YELLOW}[gitlab] Waiting for ArgoCD sync for cluster-1${NC}"
-kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig wait --for=jsonpath='{.status.sync.status}'=Synced application/gitlab -n argocd --timeout=300s
-
-kubectl --kubeconfig=$BASE_DIR/cluster-1/kubeconfig -n gitlab create secret generic gitlab-tls-cert-for-runner --from-file=gitlab.cluster-1.example.com.crt=cluster-1-ca.crt
-
-echo -e "${GREEN}Gitlab deployed to cluster-1 successfully!${NC}"

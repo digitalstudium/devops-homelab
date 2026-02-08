@@ -176,6 +176,11 @@ def add_cluster_to_argocd(cluster_name: str, base_dir: Path) -> None:
         "--plaintext",
         "--port-forward-namespace",
         "argocd",
+        "--upsert",
+        "--label",
+        f"cluster-name={cluster_name}",
+        "--name",
+        f"{cluster_name}",        
         "--yes",
     ]
 

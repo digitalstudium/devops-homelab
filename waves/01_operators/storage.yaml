@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: local-path-provisioner
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: "local-path-provisioner-{{name}}" # name is the cluster name
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/rancher/local-path-provisioner.git
+        targetRevision: v0.0.34
+        path: deploy/chart/local-path-provisioner
+        helm:
+          values: |
+            storageClass:
+              create: true
+              name: local-path
+              defaultClass: true
+              reclaimPolicy: Retain
+              defaultVolumeType: local
+            nodePathMap:
+              - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+                paths: ["/var/mnt/local-path-provisioner"]
+      destination:
+        server: "{{server}}"
+        namespace: local-path-storage
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: privileged # needed for creation of helper pod with HostPath
