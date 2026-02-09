@@ -44,7 +44,7 @@ itemTemplates:
                 targetRevision: HEAD
                 ref: values
             destination:
-              server: "{{`{{server}}`}}"
+              server: "{{ .server }}"
               namespace: "{{ .name }}"
             syncPolicy:
               automated:
