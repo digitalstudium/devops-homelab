@@ -15,6 +15,7 @@ itemTemplates:
       - name: local-path-provisioner
         helmRepo: https://charts.containeroo.ch
         helmVersion: v0.0.35
+        privileged: true
     template:
       apiVersion: argoproj.io/v1alpha1
       kind: ApplicationSet
