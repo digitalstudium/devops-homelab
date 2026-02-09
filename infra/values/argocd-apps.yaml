@@ -1,0 +1,30 @@
+## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/
+itemTemplates:
+  - items:
+      - name: cert-manager
+      - name: spegel
+      - name: storage
+      - name: postgres-operator
+    template:
+      apiVersion: argoproj.io/v1alpha1
+      kind: ApplicationSet
+      metadata:
+        name: "{{ .name }}"
+      spec:
+        generators:
+          - clusters:
+              selector:
+                matchLabels:
+                  argocd.argoproj.io/secret-type: cluster
+        template:
+          metadata:
+            name: "{{`{{cluster}}`}}-guestbook"
+          spec:
+            project: default
+            source:
+              repoURL: https://github.com/infra-team/cluster-deployments.git
+              targetRevision: HEAD
+              path: guestbook/{{`{{cluster}}`}}
+            destination:
+              server: "{{`{{cluster}}`}}"
+              namespace: guestbook
