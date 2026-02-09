@@ -72,3 +72,6 @@ itemTemplates:
                   valueFiles:
                     - $values/values/infra/{{ .name }}.yaml
                   ignoreMissingValueFiles: true
+              - repoURL: https://github.com/digitalstudium/devops-homelab.git
+                targetRevision: HEAD
+                ref: values
