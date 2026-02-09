@@ -4,20 +4,16 @@ itemTemplates:
   - items:
       - name: cert-manager
         helmRepo: https://charts.jetstack.io
-        helmChart: cert-manager
         helmVersion: v1.19.3
       - name: postgres-operator
         helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
-        helmChart: postgres-operator
         helmVersion: 1.15.1
       - name: metallb
         helmRepo: https://metallb.github.io/metallb
-        helmChart: metallb
         helmVersion: 0.15.3
         privileged: true
       - name: local-path-provisioner
         helmRepo: https://charts.containeroo.ch
-        helmChart: local-path-provisioner
         helmVersion: v0.0.35
     template:
       apiVersion: argoproj.io/v1alpha1
@@ -25,6 +21,7 @@ itemTemplates:
       metadata:
         name: "{{ .name }}"
       spec:
+        goTemplate: true
         generators:
           - clusters:
               selector:
@@ -38,7 +35,7 @@ itemTemplates:
             sources:
               - repoURL: "{{ .helmRepo }}"
                 targetRevision: "{{ .helmVersion }}"
-                chart: "{{ .helmChart }}"
+                chart: "{{ .name }}"
                 helm:
                   valueFiles:
                     - $values/values/infra/{{ .name }}.yaml
