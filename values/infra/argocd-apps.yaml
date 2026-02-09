@@ -14,6 +14,7 @@ itemTemplates:
         helmRepo: https://metallb.github.io/metallb
         helmChart: metallb
         helmVersion: 0.15.3
+        privileged: true
       - name: local-path-provisioner
         helmRepo: https://charts.containeroo.ch
         helmChart: local-path-provisioner
@@ -56,6 +57,14 @@ itemTemplates:
                 - CreateNamespace=true
                 - ServerSideApply=true
                 - ApplyOutOfSyncOnly=true
+            templatePatch: |
+              {{- if .privileged }}
+              spec:
+                syncPolicy:
+                  managedNamespaceMetadata:
+                    labels:
+                      pod-security.kubernetes.io/enforce: privileged
+              {{- end }}
   # for oci helm charts
   - items:
       - name: spegel
