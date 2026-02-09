@@ -68,12 +68,14 @@ itemTemplates:
       - name: spegel
         helmRepo: oci://ghcr.io/spegel-org/helm-charts/spegel
         helmVersion: 0.6.0
+        privileged: true
     template:
       apiVersion: argoproj.io/v1alpha1
       kind: ApplicationSet
       metadata:
         name: "{{ .name }}"
       spec:
+        goTemplate: true
         generators:
           - clusters:
               selector:
@@ -81,7 +83,7 @@ itemTemplates:
                   argocd.argoproj.io/secret-type: cluster
         template:
           metadata:
-            name: "{{`{{name}}`}}-{{ .name }}"
+            name: "{{`{{ .name }}`}}-{{ .name }}"
           spec:
             project: default
             sources:
@@ -96,7 +98,7 @@ itemTemplates:
                 targetRevision: HEAD
                 ref: values
             destination:
-              server: "{{`{{server}}`}}"
+              server: "{{`{{ .server }}`}}"
               namespace: "{{ .name }}"
             syncPolicy:
               automated:
@@ -106,3 +108,11 @@ itemTemplates:
                 - CreateNamespace=true
                 - ServerSideApply=true
                 - ApplyOutOfSyncOnly=true
+        templatePatch: |
+          {{- if .privileged }}
+          spec:
+            syncPolicy:
+              managedNamespaceMetadata:
+                labels:
+                  pod-security.kubernetes.io/enforce: privileged
+          {{- end }}
