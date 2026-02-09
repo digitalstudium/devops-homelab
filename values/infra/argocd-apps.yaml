@@ -1,0 +1,80 @@
+## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/
+itemTemplates:
+  # for non-oci helm charts
+  - items:
+      - name: cert-manager
+        helmRepo: https://charts.jetstack.io
+        helmChart: cert-manager
+        helmVersion: v1.19.3
+      - name: postgres-operator
+        helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+        helmChart: postgres-operator
+        helmVersion: 1.15.1
+      - name: metallb
+        helmRepo: https://metallb.github.io/metallb
+        helmChart: metallb
+        helmVersion: 0.15.3
+      - name: local-path-provisioner
+        helmRepo: https://charts.containeroo.ch
+        helmChart: local-path-provisioner
+        helmVersion: v0.0.35
+        path: foobar
+    template:
+      apiVersion: argoproj.io/v1alpha1
+      kind: ApplicationSet
+      metadata:
+        name: "{{ .name }}"
+      spec:
+        generators:
+          - clusters:
+              selector:
+                matchLabels:
+                  argocd.argoproj.io/secret-type: cluster
+        template:
+          metadata:
+            name: "{{`{{name}}`}}-{{ .name }}"
+          spec:
+            project: default
+            source:
+              repoURL: "{{ .helmRepo }}"
+              targetRevision: "{{ .helmVersion }}"
+              chart: "{{ .helmChart }}"
+              helm:
+                valueFiles:
+                  - values/infra/{{ .name }}.yaml
+                ignoreMissingValueFiles: true
+            destination:
+              server: "{{`{{server}}`}}"
+              namespace: "{{ .name }}"
+  # for oci helm charts
+  - items:
+      - name: spegel
+        helmRepo: oci://ghcr.io/spegel-org/helm-charts/spegel
+        helmVersion: v1.19.3
+    template:
+      apiVersion: argoproj.io/v1alpha1
+      kind: ApplicationSet
+      metadata:
+        name: "{{ .name }}"
+      spec:
+        generators:
+          - clusters:
+              selector:
+                matchLabels:
+                  argocd.argoproj.io/secret-type: cluster
+        template:
+          metadata:
+            name: "{{`{{name}}`}}-{{ .name }}"
+          spec:
+            project: default
+            source:
+              repoURL: "{{ .helmRepo }}"
+              targetRevision: "{{ .helmVersion }}"
+              path: .
+              helm:
+                valueFiles:
+                  - values/infra/{{ .name }}.yaml
+                ignoreMissingValueFiles: true
+            destination:
+              server: "{{`{{server}}`}}"
+              namespace: "{{ .name }}"

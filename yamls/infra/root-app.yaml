@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-infra-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/digitalstudium/devops-homelab.git
+    targetRevision: HEAD
+    path: yamls/infra
+    directory:
+      include: root-app.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
