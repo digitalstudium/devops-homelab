@@ -5,12 +5,18 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/digitalstudium/devops-homelab.git
-    targetRevision: HEAD
-    path: yamls/infra
-    directory:
-      include: root-app.yaml
+  sources:
+    - repoURL: "https://argoproj.github.io/argo-helm"
+      chart: argocd-apps
+      targetRevision: 2.0.4
+      helm:
+        valueFiles:
+          - $values/values/infra/argocd-apps.yaml
+    - repoURL: https://github.com/digitalstudium/devops-homelab.git
+      targetRevision: HEAD
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+  syncPolicy:
+    automated: {}
