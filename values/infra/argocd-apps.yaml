@@ -54,14 +54,14 @@ itemTemplates:
                 - CreateNamespace=true
                 - ServerSideApply=true
                 - ApplyOutOfSyncOnly=true
-            templatePatch: |
-              {{- if .privileged }}
-              spec:
-                syncPolicy:
-                  managedNamespaceMetadata:
-                    labels:
-                      pod-security.kubernetes.io/enforce: privileged
-              {{- end }}
+        templatePatch: |
+          {{- if .privileged }}
+          spec:
+            syncPolicy:
+              managedNamespaceMetadata:
+                labels:
+                  pod-security.kubernetes.io/enforce: privileged
+          {{- end }}
   # for oci helm charts
   - items:
       - name: spegel
