@@ -37,6 +37,10 @@ itemTemplates:
             name: "{{`{{ .name }}`}}-{{ .name }}"
           spec:
             project: default
+            sources:
+              - repoURL: https://github.com/digitalstudium/devops-homelab.git
+                targetRevision: HEAD
+                ref: values
             destination:
               server: "{{`{{ .server }}`}}"
               namespace: "{{ .name }}"
@@ -68,6 +72,3 @@ itemTemplates:
                   valueFiles:
                     - $values/values/infra/{{ .name }}.yaml
                   ignoreMissingValueFiles: true
-              - repoURL: https://github.com/digitalstudium/devops-homelab.git
-                targetRevision: HEAD
-                ref: values
