@@ -18,7 +18,6 @@ itemTemplates:
         helmRepo: https://charts.containeroo.ch
         helmChart: local-path-provisioner
         helmVersion: v0.0.35
-        path: foobar
     template:
       apiVersion: argoproj.io/v1alpha1
       kind: ApplicationSet
@@ -58,7 +57,7 @@ itemTemplates:
   - items:
       - name: spegel
         helmRepo: oci://ghcr.io/spegel-org/helm-charts/spegel
-        helmVersion: v1.19.3
+        helmVersion: 0.6.0
     template:
       apiVersion: argoproj.io/v1alpha1
       kind: ApplicationSet
