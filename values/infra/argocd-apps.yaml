@@ -34,14 +34,17 @@ itemTemplates:
             name: "{{`{{name}}`}}-{{ .name }}"
           spec:
             project: default
-            source:
-              repoURL: "{{ .helmRepo }}"
-              targetRevision: "{{ .helmVersion }}"
-              chart: "{{ .helmChart }}"
-              helm:
-                valueFiles:
-                  - values/infra/{{ .name }}.yaml
-                ignoreMissingValueFiles: true
+            sources:
+              - repoURL: "{{ .helmRepo }}"
+                targetRevision: "{{ .helmVersion }}"
+                chart: "{{ .helmChart }}"
+                helm:
+                  valueFiles:
+                    - $values/values/infra/{{ .name }}.yaml
+                  ignoreMissingValueFiles: true
+              - repoURL: https://github.com/digitalstudium/devops-homelab.git
+                targetRevision: HEAD
+                ref: values
             destination:
               server: "{{`{{server}}`}}"
               namespace: "{{ .name }}"
@@ -74,14 +77,17 @@ itemTemplates:
             name: "{{`{{name}}`}}-{{ .name }}"
           spec:
             project: default
-            source:
-              repoURL: "{{ .helmRepo }}"
-              targetRevision: "{{ .helmVersion }}"
-              path: .
-              helm:
-                valueFiles:
-                  - values/infra/{{ .name }}.yaml
-                ignoreMissingValueFiles: true
+            sources:
+              - repoURL: "{{ .helmRepo }}"
+                targetRevision: "{{ .helmVersion }}"
+                path: .
+                helm:
+                  valueFiles:
+                    - $values/values/infra/{{ .name }}.yaml
+                  ignoreMissingValueFiles: true
+              - repoURL: https://github.com/digitalstudium/devops-homelab.git
+                targetRevision: HEAD
+                ref: values
             destination:
               server: "{{`{{server}}`}}"
               namespace: "{{ .name }}"
