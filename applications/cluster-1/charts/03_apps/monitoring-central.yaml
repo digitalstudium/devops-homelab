@@ -1,0 +1,144 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: victoriametrics-central
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            cluster-name: cluster-1
+            argocd.argoproj.io/secret-type: cluster
+        values:
+          cluster_url: "{{server}}"
+          cluster_name: "{{name}}"
+  template:
+    metadata:
+      name: "vm-{{cluster_name}}-central"
+      namespace: argocd
+      annotations:
+        argocd.argoproj.io/application-set: victoriametrics-central
+    spec:
+      project: default
+      source:
+        repoURL: https://victoriametrics.github.io/helm-charts/
+        targetRevision: 0.70.0
+        chart: victoria-metrics-k8s-stack
+        helm:
+          valuesObject:
+            defaultDashboards:
+              enabled: false
+            vmsingle:
+              ingress:
+                enabled: true
+                annotations:
+                  cert-manager.io/cluster-issuer: my-ca-issuer
+                ingressClassName: "traefik"
+                hosts:
+                  - vmsingle.{{cluster_name}}.example.com
+                tls:
+                  - secretName: vmsingle-ingress-tls
+                    hosts:
+                      - vmsingle.{{cluster_name}}.example.com
+              spec:
+                retentionPeriod: "1d"
+                storage:
+                  resources:
+                    requests:
+                      storage: 1Gi
+            alertmanager:
+              ingress:
+                enabled: true
+                annotations:
+                  cert-manager.io/cluster-issuer: my-ca-issuer
+                ingressClassName: "traefik"
+                hosts:
+                  - alertmanager.{{cluster_name}}.example.com
+                tls:
+                  - secretName: alertmanager-ingress-tls
+                    hosts:
+                      - alertmanager.{{cluster_name}}.example.com
+            vmagent:
+              spec:
+                externalLabels:
+                  cluster: "{{cluster_name}}"
+              ingress:
+                enabled: true
+                annotations:
+                  cert-manager.io/cluster-issuer: my-ca-issuer
+                ingressClassName: "traefik"
+                hosts:
+                  - vmagent.{{cluster_name}}.example.com
+                tls:
+                  - secretName: vmagent-ingress-tls
+                    hosts:
+                      - vmagent.{{cluster_name}}.example.com
+            grafana:
+              plugins:
+                - victoriametrics-metrics-datasource
+              sidecar:
+                dashboards:
+                  enabled: false
+              dashboardProviders:
+                dashboardproviders.yaml:
+                  apiVersion: 1
+                  providers:
+                    - name: "grafana-dashboards-kubernetes"
+                      orgId: 1
+                      folder: "Kubernetes"
+                      type: file
+                      disableDeletion: true
+                      editable: true
+                      options:
+                        path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes
+              dashboards:
+                grafana-dashboards-kubernetes:
+                  k8s-system-api-server:
+                    url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+                    token: ""
+                  k8s-system-coredns:
+                    url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+                    token: ""
+                  k8s-views-global:
+                    url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+                    token: ""
+                  k8s-views-namespaces:
+                    url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+                    token: ""
+                  k8s-views-nodes:
+                    url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+                    token: ""
+                  k8s-views-pods:
+                    url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+                    token: ""
+              initChownData:
+                enabled: false
+              persistence:
+                enabled: true
+                size: 1Gi
+              ingress:
+                enabled: true
+                annotations:
+                  cert-manager.io/cluster-issuer: my-ca-issuer
+                ingressClassName: "traefik"
+                hosts:
+                  - grafana.{{cluster_name}}.example.com
+                tls:
+                  - secretName: grafana-ingress-tls
+                    hosts:
+                      - grafana.{{cluster_name}}.example.com
+      destination:
+        server: "{{cluster_url}}"
+        namespace: monitoring
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: privileged

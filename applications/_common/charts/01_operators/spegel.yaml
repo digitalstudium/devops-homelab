@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: spegel
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: "spegel-{{name}}" # name is the cluster name
+    spec:
+      project: default
+      source:
+        repoURL: oci://ghcr.io/spegel-org/helm-charts/spegel
+        targetRevision: 0.6.0
+        path: .
+        helm:
+          # Using values instead of valuesObject for ApplicationSet
+          values: |
+            spegel:
+              containerdRegistryConfigPath: /etc/cri/conf.d/hosts
+      destination:
+        server: "{{server}}"
+        namespace: spegel
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: privileged # https://spegel.dev/docs/getting-started/#talos

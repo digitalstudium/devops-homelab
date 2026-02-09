@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: metallb
+  namespace: argocd
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: "metallb-native-{{name}}" # name is the cluster name
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/metallb/metallb
+        targetRevision: v0.15.3
+        path: config/manifests
+        directory:
+          include: metallb-native.yaml
+      destination:
+        server: "{{server}}"
+        namespace: metallb-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - ApplyOutOfSyncOnly=true

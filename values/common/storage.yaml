@@ -1,0 +1,9 @@
+storageClass:
+  create: true
+  name: local-path
+  defaultClass: true
+  reclaimPolicy: Retain
+  defaultVolumeType: local
+nodePathMap:
+  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+    paths: ["/var/mnt/local-path-provisioner"]
