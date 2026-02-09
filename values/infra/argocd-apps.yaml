@@ -29,7 +29,7 @@ itemTemplates:
                   argocd.argoproj.io/secret-type: cluster
         template:
           metadata:
-            name: "{{`{{name}}`}}-{{ .name }}"
+            name: "{{`{{ .name }}`}}-{{ .name }}"
           spec:
             project: default
             sources:
