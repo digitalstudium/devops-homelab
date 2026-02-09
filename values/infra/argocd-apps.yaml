@@ -46,6 +46,14 @@ itemTemplates:
             destination:
               server: "{{`{{server}}`}}"
               namespace: "{{ .name }}"
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true
+                - ServerSideApply=true
+                - ApplyOutOfSyncOnly=true
   # for oci helm charts
   - items:
       - name: spegel
@@ -78,3 +86,11 @@ itemTemplates:
             destination:
               server: "{{`{{server}}`}}"
               namespace: "{{ .name }}"
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true
+                - ServerSideApply=true
+                - ApplyOutOfSyncOnly=true
