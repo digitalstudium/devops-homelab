@@ -5,8 +5,8 @@ clusterNames:
   - name: vmkube-2
 
 valueFiles:
-  - $values/values/infra/common/{{ $chart.name }}.yaml
-  - $values/values/infra/{{ $cluster.name }}/{{ $chart.name }}.yaml
+  - $values/values/infra/common/{{ .chart.name }}.yaml
+  - $values/values/infra/{{ .cluster.name }}/{{ .chart.name }}.yaml
 
 charts:
   allClusters:
