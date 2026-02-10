@@ -1,0 +1,33 @@
+vmsingle:
+  enabled: false
+vmalert:
+  enabled: false
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
+vmagent:
+  additionalRemoteWrites:
+    - url: https://vmagent.vmkube-1.example.com/api/v1/write
+  spec:
+    host_aliases:
+      - ip: "192.168.193.1"
+        hostnames:
+          - "vmagent.vmkube-1.example.com"
+    secrets:
+      - central-vmagetnt-tls-ca
+    extraArgs:
+      remoteWrite.tlsCAFile: /etc/vm/secrets/central-vmagetnt-tls-ca/cluster-1-ca.crt
+    externalLabels:
+      cluster: "vmkube-1"
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: "traefik"
+    hosts:
+      - vmagent.vmkube-1.example.com
+    tls:
+      - secretName: vmagent-ingress-tls
+        hosts:
+          - vmagent.vmkube-1.example.com

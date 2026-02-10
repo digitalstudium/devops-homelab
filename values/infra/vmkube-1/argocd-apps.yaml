@@ -15,6 +15,9 @@ itemTemplates:
       - name: traefik
         helmRepo: https://traefik.github.io/charts
         helmVersion: 39.0.0
+      - name: victoria-metrics-k8s-stack
+        helmRepo: https://victoriametrics.github.io/helm-charts
+        helmVersion: 0.70.0
       - name: metallb
         helmRepo: https://metallb.github.io/metallb
         helmVersion: 0.15.3
@@ -76,6 +79,7 @@ itemTemplates:
                 helm:
                   valueFiles:
                     - $values/values/infra/common/{{ .name }}.yaml
+                    - $values/values/infra/{{`{{ .name }}`}}/{{ .name }}.yaml
                   ignoreMissingValueFiles: true
               - repoURL: https://github.com/digitalstudium/devops-homelab.git
                 targetRevision: HEAD
