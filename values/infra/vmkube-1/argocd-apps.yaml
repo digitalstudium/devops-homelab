@@ -32,8 +32,3 @@ charts:
       helmRepo: https://charts.containeroo.ch
       helmVersion: v0.0.35
       privileged: true
-  vmkube-1:
-    - name: argocd
-      helmRepo: https://argoproj.github.io/argo-helm
-      helmVersion: v0.0.35
-      privileged: true
