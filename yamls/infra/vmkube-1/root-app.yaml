@@ -8,12 +8,12 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: "https://argoproj.github.io/argo-helm"
-      chart: argocd-apps
-      targetRevision: 2.0.4
+    - repoURL: "https://helm.digitalstudium.com"
+      chart: argocd-appsets
+      targetRevision: 0.1.0
       helm:
         valueFiles:
-          - $values/values/infra/vmkube-1/argocd-apps.yaml
+          - $values/values/infra/vmkube-1/argocd-appsets.yaml
     - repoURL: https://github.com/digitalstudium/devops-homelab.git
       targetRevision: HEAD
       ref: values
