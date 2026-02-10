@@ -29,6 +29,8 @@ itemTemplates:
       metadata:
         name: "{{ .name }}"
       spec:
+        syncPolicy:
+          preserveResourcesOnDeletion: false
         goTemplate: true
         generators:
           - clusters:
