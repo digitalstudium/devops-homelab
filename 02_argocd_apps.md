@@ -1,3 +1,3 @@
 ```bash
-kubectl apply -f yamls/infra/root-app.yaml
+kubectl apply -f yamls/infra/vmkube-1/root-app.yaml
 ```
