@@ -1,3 +1,6 @@
+global:
+  image:
+    registry: mirror.gcr.io
 vmsingle:
   enabled: false
 vmalert:

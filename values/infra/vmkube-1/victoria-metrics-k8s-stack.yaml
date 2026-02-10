@@ -1,3 +1,6 @@
+global:
+  image:
+    registry: mirror.gcr.io
 defaultDashboards:
   enabled: false
 vmsingle:
