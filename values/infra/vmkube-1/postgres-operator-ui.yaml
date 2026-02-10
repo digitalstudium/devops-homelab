@@ -1,0 +1,9 @@
+ingress:
+  hosts:
+    - host: postgres.vmkube-1.example.com
+      paths:
+        - "/"
+  tls:
+    - secretName: postgres-ui-tls
+      hosts:
+        - postgres.vmkube-1.example.com

@@ -10,17 +10,16 @@ valueFiles:
 
 charts:
   allClusters:
-    # - name: spegel
-    #   helmRepo: oci://ghcr.io/spegel-org/helm-charts/spegel
-    #   helmVersion: 0.6.0
-    #   privileged: true
-    #   oci: true
     - name: cert-manager
       helmRepo: https://charts.jetstack.io
       helmVersion: v1.19.3
     - name: postgres-operator
       helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
       helmVersion: 1.15.1
+    - name: postgres-operator-ui
+      helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+      helmVersion: 1.15.1
+      namespace: postgres-operator
     - name: traefik
       helmRepo: https://traefik.github.io/charts
       helmVersion: 39.0.0

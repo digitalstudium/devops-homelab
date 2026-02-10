@@ -24,7 +24,7 @@ helm repo update
 ## Шаг 2: Установка ArgoCD
 
 ```bash
-KUBECONFIG=~/.kube/vmkube
+export KUBECONFIG=~/.kube/vmkube
 kubectl config use-context admin@vmkube-1
 helm upgrade --install argo argo/argo-cd \
   --namespace argocd \
@@ -56,7 +56,6 @@ helm upgrade --install argo argo/argo-cd \
 export ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath='{.data.password}' | base64 -d)
 echo $ARGOCD_PASSWORD
-echo
 # Запишите пароль в безопасное место
 ```
 

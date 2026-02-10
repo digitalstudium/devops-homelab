@@ -1,0 +1,7 @@
+envs:
+  targetNamespace: "*"
+ingress:
+  enabled: true
+  ingressClassName: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: my-ca-issuer
