@@ -40,10 +40,10 @@ itemTemplates:
             name: "{{`{{ .name }}`}}-{{ .name }}"
           spec:
             project: default
-            sources:
-              - repoURL: https://github.com/digitalstudium/devops-homelab.git
-                targetRevision: HEAD
-                ref: values
+            # sources:
+            #   - repoURL: https://github.com/digitalstudium/devops-homelab.git
+            #     targetRevision: HEAD
+            #     ref: values
             destination:
               server: "{{`{{ .server }}`}}"
               namespace: "{{ .name }}"
