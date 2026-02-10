@@ -11,7 +11,7 @@ spec:
       targetRevision: 2.0.4
       helm:
         valueFiles:
-          - $values/values/infra/argocd-apps.yaml
+          - $values/values/infra/vmkube-1/argocd-apps.yaml
     - repoURL: https://github.com/digitalstudium/devops-homelab.git
       targetRevision: HEAD
       ref: values

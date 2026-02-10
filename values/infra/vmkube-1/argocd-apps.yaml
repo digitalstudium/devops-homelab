@@ -12,6 +12,9 @@ itemTemplates:
       - name: postgres-operator
         helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
         helmVersion: 1.15.1
+      - name: traefik
+        helmRepo: https://traefik.github.io/charts
+        helmVersion: 39.0.0
       - name: metallb
         helmRepo: https://metallb.github.io/metallb
         helmVersion: 0.15.3
@@ -70,7 +73,7 @@ itemTemplates:
           {{- end }}
                 helm:
                   valueFiles:
-                    - $values/values/infra/{{ .name }}.yaml
+                    - $values/values/infra/common/{{ .name }}.yaml
                   ignoreMissingValueFiles: true
               - repoURL: https://github.com/digitalstudium/devops-homelab.git
                 targetRevision: HEAD

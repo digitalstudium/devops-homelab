@@ -1,0 +1,5 @@
+gateway:
+  listeners:
+    web:
+      namespacePolicy:
+        from: All
