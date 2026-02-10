@@ -35,6 +35,7 @@ itemTemplates:
         syncPolicy:
           preserveResourcesOnDeletion: false
         goTemplate: true
+        goTemplateOptions: ["missingkey=error"]
         generators:
           - clusters:
               selector:
