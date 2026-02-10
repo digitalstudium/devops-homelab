@@ -1,15 +1,17 @@
-valuesRepo: https://github.com/digitalstudium/devops-homelab.git
+sourceRepo: https://github.com/digitalstudium/devops-homelab.git
 
 clusterNames:
   - name: vmkube-1
   - name: vmkube-2
 
-valueFiles:
-  - $values/values/infra/common/{{ .chart.name }}.yaml
-  - $values/values/infra/{{ .cluster.name }}/{{ .chart.name }}.yaml
-
 charts:
+  valueFiles:
+    - $values/values/common/{{ .chart.name }}.yaml
+    - $values/values/{{ .cluster.name }}/{{ .chart.name }}.yaml
   allClusters:
+    - name: gitlab
+      helmRepo: https://charts.gitlab.io
+      helmVersion: 9.8.3
     - name: cert-manager
       helmRepo: https://charts.jetstack.io
       helmVersion: v1.19.3
@@ -35,3 +37,7 @@ charts:
       helmRepo: https://charts.containeroo.ch
       helmVersion: v0.0.35
       privileged: true
+
+yamls:
+  allClusters:
+    - name: cert-manager
