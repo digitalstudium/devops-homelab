@@ -1,2 +1,4 @@
 global:
   imageRegistry: "mirror.gcr.io"
+  security:
+    allowInsecureImages: true # bitnami considers any registry except docker hub as insecure
