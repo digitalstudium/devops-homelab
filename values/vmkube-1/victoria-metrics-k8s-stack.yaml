@@ -1,8 +1,3 @@
-global:
-  image:
-    registry: mirror.gcr.io
-defaultDashboards:
-  enabled: false
 vmsingle:
   ingress:
     enabled: true
@@ -10,29 +5,18 @@ vmsingle:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - vmsingle.vmkube-1.example.com
+      - vmsingle.vmkube-1.homelab.local
     tls:
       - secretName: vmsingle-ingress-tls
         hosts:
-          - vmsingle.vmkube-1.example.com
+          - vmsingle.vmkube-1.homelab.local
   spec:
     retentionPeriod: "1d"
     storage:
       resources:
         requests:
           storage: 1Gi
-alertmanager:
-  ingress:
-    enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: my-ca-issuer
-    ingressClassName: "traefik"
-    hosts:
-      - alertmanager.vmkube-1.example.com
-    tls:
-      - secretName: alertmanager-ingress-tls
-        hosts:
-          - alertmanager.vmkube-1.example.com
+
 vmagent:
   spec:
     externalLabels:
@@ -43,11 +27,28 @@ vmagent:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - vmagent.vmkube-1.example.com
+      - vmagent.vmkube-1.homelab.local
     tls:
       - secretName: vmagent-ingress-tls
         hosts:
-          - vmagent.vmkube-1.example.com
+          - vmagent.vmkube-1.homelab.local
+
+alertmanager:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: "traefik"
+    hosts:
+      - alertmanager.vmkube-1.homelab.local
+    tls:
+      - secretName: alertmanager-ingress-tls
+        hosts:
+          - alertmanager.vmkube-1.homelab.local
+
+defaultDashboards:
+  enabled: false
+
 grafana:
   plugins:
     - victoriametrics-metrics-datasource
@@ -97,8 +98,8 @@ grafana:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - grafana.vmkube-1.example.com
+      - grafana.vmkube-1.homelab.local
     tls:
       - secretName: grafana-ingress-tls
         hosts:
-          - grafana.vmkube-1.example.com
+          - grafana.vmkube-1.homelab.local

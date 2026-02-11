@@ -29,7 +29,7 @@ kubectl config use-context admin@vmkube-1
 helm upgrade --install argo argo/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --set global.domain=argocd.vmkube-1.example.com \
+  --set global.domain=argocd.vmkube-1.homelab.local \
   --set configs.params.server.insecure=true \
   --set server.ingress.enabled=true \
   --set server.ingress.ingressClassName=traefik \
@@ -40,7 +40,7 @@ helm upgrade --install argo argo/argo-cd \
 
 **Parameter Explanation:**
 
-- `global.domain=argocd.vmkube-1.example.com` - Domain for accessing ArgoCD (will be accessible after ingress installation)
+- `global.domain=argocd.vmkube-1.homelab.local` - Domain for accessing ArgoCD (will be accessible after ingress installation)
 - `configs.params.server.insecure=true` - Allow insecure connections (SSL will be terminated at the Ingress level)
 - `server.ingress.enabled=true` - Enable Ingress
 - `server.ingress.ingressClassName=traefik` - Use the Traefik Ingress Controller
@@ -65,7 +65,8 @@ echo $ARGOCD_PASSWORD
 
 ```bash
 # Login via CLI
-argocd login --port-forward \
+argocd login \
+  --port-forward \
   --port-forward-namespace argocd \
   --insecure \
   --username admin \
@@ -87,7 +88,22 @@ for cluster in vmkube-1 vmkube-2; do
 done
 ```
 
-# Step 6: Accessing the ArgoCD Web UI via Port Forwarding
+# Step 6: Configuring GitLab Integration
+
+Create `devops` group in GitLab and add token with `Reporter` role and `read_api` + `read_repository` permissions.
+Then add credentials for this group to argocd:
+
+```bash
+export GITLAB_TOKEN=token
+argocd repocreds add \
+  --port-forward \
+  --port-forward-namespace argocd \
+  https://gitlab.homelab.local/devops \
+  --username token \
+  --password $GITLAB_TOKEN
+```
+
+# Step 7: Accessing the ArgoCD Web UI via Port Forwarding
 
 This step establishes a secure tunnel to access the ArgoCD web interface through port forwarding.
 
