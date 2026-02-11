@@ -12,10 +12,7 @@ arkade get kubectl helm argocd
 ## Step 1: Adding the ArgoCD Helm Repository
 
 ```bash
-# Add the official ArgoCD repository
 helm repo add argo https://argoproj.github.io/argo-helm
-
-# Update repository information
 helm repo update
 ```
 
@@ -88,7 +85,8 @@ done
 
 # Step 6: Configuring GitLab Integration
 
-Create `devops` group in GitLab and add token with `Reporter` role and `read_api` + `read_repository` permissions.
+Create `devops` group in GitLab and add token named `argocd` with `Reporter` role and `read_api` + `read_repository` permissions (pay attention to Expiration date!)
+
 Then add credentials for this group to argocd:
 
 ```bash

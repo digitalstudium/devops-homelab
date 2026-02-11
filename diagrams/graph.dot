@@ -8,10 +8,10 @@ digraph G {
   external_dns -> ingress;
   postgres_operator -> postgres_operator_ui;
   postgres_operator -> postgres_clusters;
-  storage -> postgres_clusters;
-  storage -> etcd;
+  local_path_provisioner -> postgres_clusters;
+  local_path_provisioner -> etcd;
   ingress-> postgres_operator_ui;
   ingress-> monitoring;
-  storage-> monitoring;
+  local_path_provisioner-> monitoring;
   postgres_clusters->monitoring;
 }

@@ -1,4 +1,4 @@
-sourceRepo: https://github.com/digitalstudium/devops-homelab.git
+sourceRepo: https://gitlab.homelab.local/devops/argocd-apps.git
 
 clusterNames:
   - name: vmkube-1
