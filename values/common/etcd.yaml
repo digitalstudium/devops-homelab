@@ -1,7 +1,2 @@
-global:
-  imageRegistry: "public.ecr.aws"
-  security:
-    allowInsecureImages: true # bitnami considers any registry except docker hub as insecure
-
 preUpgradeJob:
   enabled: false # does not work on argocd
