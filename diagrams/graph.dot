@@ -1,11 +1,15 @@
 digraph G {
   metallb -> ingress;
   metallb -> external_dns;
+  etcd -> external_dns;
+  coredns -> external_dns;
+  etcd -> coredns;
   certmanager -> ingress;
   external_dns -> ingress;
   postgres_operator -> postgres_operator_ui;
   postgres_operator -> postgres_clusters;
   storage -> postgres_clusters;
+  storage -> etcd;
   ingress-> postgres_operator_ui;
   ingress-> monitoring;
   storage-> monitoring;
