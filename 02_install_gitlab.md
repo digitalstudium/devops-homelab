@@ -86,7 +86,7 @@ done
 Check if ip address is resolved correctly:
 
 ```bash
-kubectl run busybox --image=mirror.gcr.io/busybox --rm --attach --command -- nslookup gitlab.homelab.local
+kubectl run busybox --image=public.ecr.aws/busybox --rm --attach --command -- nslookup gitlab.homelab.local
 ```
 
 Remove VM when you are done:

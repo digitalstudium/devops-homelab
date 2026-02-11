@@ -9,4 +9,4 @@ nodePathMap:
     paths: ["/var/mnt/local-path-provisioner"]
 
 image:
-  repository: mirror.gcr.io/rancher/local-path-provisioner
+  repository: public.ecr.aws/rancher/local-path-provisioner

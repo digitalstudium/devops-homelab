@@ -1,5 +1,5 @@
 image:
-  repository: mirror.gcr.io/coredns/coredns
+  repository: public.ecr.aws/coredns/coredns
 
 isClusterService: false
 
@@ -15,7 +15,7 @@ replicaCount: 1
 # kubectl logs deploy/coredns -n default -c resolv-check --tail=50
 initContainers:
   - name: resolv-check
-    image: mirror.gcr.io/busybox:1.37
+    image: public.ecr.aws/busybox:1.37
     command:
       [
         "sh",

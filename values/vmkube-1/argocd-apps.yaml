@@ -20,7 +20,7 @@ charts:
       helmVersion: 1.15.1
       namespace: postgres-operator
     - name: etcd
-      helmRepo: oci://mirror.gcr.io/bitnamicharts/etcd
+      helmRepo: oci://public.ecr.aws/bitnamicharts/etcd
       helmVersion: 12.0.18
       oci: true
       namespace: external-dns

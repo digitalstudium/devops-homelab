@@ -5,4 +5,4 @@ gateway:
         from: All
 
 image:
-  registry: mirror.gcr.io
+  registry: public.ecr.aws
