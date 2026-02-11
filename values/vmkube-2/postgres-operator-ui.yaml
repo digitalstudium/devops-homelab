@@ -1,4 +1,6 @@
 ingress:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: postgres.vmkube-2.homelab.internal
   hosts:
     - host: postgres.vmkube-2.homelab.internal
       paths:

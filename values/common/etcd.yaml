@@ -1,2 +1,0 @@
-preUpgradeJob:
-  enabled: false # does not work on argocd

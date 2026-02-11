@@ -9,6 +9,7 @@ env:
 # Sources define what ExternalDNS will use to discover endpoints
 sources:
   - service
+  - ingress
 
 # Policy options
 policy: sync

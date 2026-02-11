@@ -1,3 +1,9 @@
+image:
+  repository: mirror.gcr.io/rancher/local-path-provisioner # because of docker hub rate limits
+
+helperImage:
+  repository: mirror.gcr.io/library/busybox
+
 storageClass:
   create: true
   name: local-path
@@ -7,4 +13,3 @@ storageClass:
 nodePathMap:
   - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
     paths: ["/var/mnt/local-path-provisioner"]
-

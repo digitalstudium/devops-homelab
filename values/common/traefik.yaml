@@ -3,3 +3,9 @@ gateway:
     web:
       namespacePolicy:
         from: All
+
+image:
+  registry: mirror.gcr.io
+
+ingressClass:
+  name: traefik
