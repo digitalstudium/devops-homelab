@@ -8,12 +8,12 @@ grafana:
   enabled: false
 vmagent:
   additionalRemoteWrites:
-    - url: https://vmagent.vmkube-1.homelab.local/api/v1/write
+    - url: https://vmagent.vmkube-1.homelab.internal/api/v1/write
   spec:
     host_aliases:
       - ip: "192.168.193.1"
         hostnames:
-          - "vmagent.vmkube-1.homelab.local"
+          - "vmagent.vmkube-1.homelab.internal"
     secrets:
       - central-vmagetnt-tls-ca
     extraArgs:
@@ -26,8 +26,8 @@ vmagent:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - vmagent.vmkube-2.homelab.local
+      - vmagent.vmkube-2.homelab.internal
     tls:
       - secretName: vmagent-ingress-tls
         hosts:
-          - vmagent.vmkube-2.homelab.local
+          - vmagent.vmkube-2.homelab.internal

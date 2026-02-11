@@ -5,11 +5,11 @@ vmsingle:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - vmsingle.vmkube-1.homelab.local
+      - vmsingle.vmkube-1.homelab.internal
     tls:
       - secretName: vmsingle-ingress-tls
         hosts:
-          - vmsingle.vmkube-1.homelab.local
+          - vmsingle.vmkube-1.homelab.internal
   spec:
     retentionPeriod: "1d"
     storage:
@@ -27,11 +27,11 @@ vmagent:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - vmagent.vmkube-1.homelab.local
+      - vmagent.vmkube-1.homelab.internal
     tls:
       - secretName: vmagent-ingress-tls
         hosts:
-          - vmagent.vmkube-1.homelab.local
+          - vmagent.vmkube-1.homelab.internal
 
 alertmanager:
   ingress:
@@ -40,11 +40,11 @@ alertmanager:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - alertmanager.vmkube-1.homelab.local
+      - alertmanager.vmkube-1.homelab.internal
     tls:
       - secretName: alertmanager-ingress-tls
         hosts:
-          - alertmanager.vmkube-1.homelab.local
+          - alertmanager.vmkube-1.homelab.internal
 
 defaultDashboards:
   enabled: false
@@ -98,8 +98,8 @@ grafana:
       cert-manager.io/cluster-issuer: my-ca-issuer
     ingressClassName: "traefik"
     hosts:
-      - grafana.vmkube-1.homelab.local
+      - grafana.vmkube-1.homelab.internal
     tls:
       - secretName: grafana-ingress-tls
         hosts:
-          - grafana.vmkube-1.homelab.local
+          - grafana.vmkube-1.homelab.internal

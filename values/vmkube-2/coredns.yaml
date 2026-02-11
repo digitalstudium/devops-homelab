@@ -17,7 +17,7 @@ servers:
           fallthrough in-addr.arpa ip6.arpa
           ttl 30
       - name: etcd
-        parameters: "vmkube-2.homelab.local"
+        parameters: "vmkube-2.homelab.internal"
         configBlock: |
           stubzones
           path /skydns

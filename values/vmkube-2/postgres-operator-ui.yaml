@@ -1,9 +1,9 @@
 ingress:
   hosts:
-    - host: postgres.vmkube-2.homelab.local
+    - host: postgres.vmkube-2.homelab.internal
       paths:
         - "/"
   tls:
     - secretName: postgres-ui-tls
       hosts:
-        - postgres.vmkube-2.homelab.local
+        - postgres.vmkube-2.homelab.internal

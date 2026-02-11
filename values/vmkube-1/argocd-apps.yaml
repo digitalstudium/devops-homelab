@@ -1,4 +1,4 @@
-sourceRepo: https://gitlab.homelab.local/devops/argocd-apps.git
+sourceRepo: https://gitlab.homelab.internal/devops/argocd-apps.git
 
 clusterNames:
   - name: vmkube-1

@@ -24,7 +24,7 @@ kubectl config use-context admin@vmkube-1
 helm upgrade --install argo argo/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --set global.domain=argocd.vmkube-1.homelab.local \
+  --set global.domain=argocd.vmkube-1.homelab.internal \
   --set configs.params.server.insecure=true \
   --set server.ingress.enabled=true \
   --set server.ingress.ingressClassName=traefik \
@@ -35,7 +35,7 @@ helm upgrade --install argo argo/argo-cd \
 
 **Parameter Explanation:**
 
-- `global.domain=argocd.vmkube-1.homelab.local` - Domain for accessing ArgoCD (will be accessible after ingress installation)
+- `global.domain=argocd.vmkube-1.homelab.internal` - Domain for accessing ArgoCD (will be accessible after ingress installation)
 - `configs.params.server.insecure=true` - Allow insecure connections (SSL will be terminated at the Ingress level)
 - `server.ingress.enabled=true` - Enable Ingress
 - `server.ingress.ingressClassName=traefik` - Use the Traefik Ingress Controller
@@ -94,12 +94,23 @@ export GITLAB_TOKEN=token
 argocd repocreds add \
   --port-forward \
   --port-forward-namespace argocd \
-  https://gitlab.homelab.local/devops \
+  https://gitlab.homelab.internal/devops \
   --username token \
   --password $GITLAB_TOKEN
 ```
 
-# Step 7: Accessing the ArgoCD Web UI via Port Forwarding
+# Step 7: Download ssl certificate for gitlab.homelab.internal and add it to trusted to ArgoCD (change ip placeholder)
+
+```bash
+scp root@192.168.192.151:/etc/gitlab/ssl/gitlab.homelab.internal.crt ./
+argocd cert add-tls \
+  --port-forward \
+  --port-forward-namespace argocd \
+  gitlab.homelab.internal \
+  --from ./gitlab.homelab.internal.crt
+```
+
+# Step 8: Accessing the ArgoCD Web UI via Port Forwarding
 
 This step establishes a secure tunnel to access the ArgoCD web interface through port forwarding.
 
@@ -115,5 +126,7 @@ kubectl -n argocd port-forward deployments/argo-argocd-server 8080:8080
 3. Log in using:
    - **Username:** `admin`
    - **Password:** The password you retrieved in Step 3
+
+Step completed!
 
 **Note:** Keep this terminal session running while you need access to the UI. The connection will terminate if you close the terminal or press `Ctrl+C`.

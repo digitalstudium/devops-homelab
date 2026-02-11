@@ -14,7 +14,7 @@ spec:
       helm:
         valueFiles:
           - $values/values/vmkube-1/argocd-apps.yaml
-    - repoURL: https://gitlab.homelab.local/devops/argocd-apps.git
+    - repoURL: https://gitlab.homelab.internal/devops/argocd-apps.git
       targetRevision: HEAD
       ref: values
   destination:

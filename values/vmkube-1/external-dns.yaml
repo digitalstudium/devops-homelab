@@ -1,2 +1,2 @@
 domainFilters:
-  - vmkube-1.homelab.local
+  - vmkube-1.homelab.internal
