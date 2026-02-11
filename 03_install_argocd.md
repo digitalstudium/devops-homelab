@@ -2,8 +2,6 @@
 
 ## Prerequisites
 
-### 1. Install Required Tools
-
 Install the `kubectl`, `helm`, and `argocd` CLI tools.
 This can be done, for example, using [`arkade`](https://github.com/alexellis/arkade)
 

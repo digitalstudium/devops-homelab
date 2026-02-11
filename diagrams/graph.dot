@@ -1,23 +1,13 @@
 digraph G {
-  cluster -> argocd;
-  argocd -> metallb;
-  argocd -> storage;
-  argocd -> certmanager;
-  argocd -> postgres_operator;
-  argocd -> ingress;
-  argocd -> postgres_operator_ui;
   metallb -> ingress;
+  metallb -> external_dns;
   certmanager -> ingress;
+  external_dns -> ingress;
   postgres_operator -> postgres_operator_ui;
   postgres_operator -> postgres_clusters;
-  argocd -> spegel;
-  spegel -> postgres_clusters;
   storage -> postgres_clusters;
-  spegel -> monitoring;
+  ingress-> postgres_operator_ui;
   ingress-> monitoring;
   storage-> monitoring;
   postgres_clusters->monitoring;
-  ingress-> gitlab;
-  storage-> gitlab;
-  postgres_clusters->gitlab;
 }

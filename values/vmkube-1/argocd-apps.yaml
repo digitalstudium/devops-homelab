@@ -19,6 +19,18 @@ charts:
       helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
       helmVersion: 1.15.1
       namespace: postgres-operator
+    - name: etcd
+      helmRepo: oci://registry-1.docker.io/bitnamicharts/etcd
+      helmVersion: 12.0.18
+      oci: true
+      namespace: external-dns
+    - name: coredns
+      helmRepo: https://coredns.github.io/helm
+      helmVersion: 1.45.2
+      namespace: external-dns
+    - name: external-dns
+      helmRepo: https://kubernetes-sigs.github.io/external-dns
+      helmVersion: 1.20.0
     - name: traefik
       helmRepo: https://traefik.github.io/charts
       helmVersion: 39.0.0
