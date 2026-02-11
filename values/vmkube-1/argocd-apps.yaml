@@ -19,11 +19,11 @@ charts:
       helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
       helmVersion: 1.15.1
       namespace: postgres-operator
-    - name: etcd
-      helmRepo: oci://docker.io/bitnamicharts/etcd
-      helmVersion: 12.0.18
-      oci: true
-      namespace: external-dns
+    # - name: etcd
+    #   helmRepo: oci://docker.io/bitnamicharts/etcd
+    #   helmVersion: 12.0.18
+    #   oci: true
+    #   namespace: external-dns
     - name: coredns
       helmRepo: https://coredns.github.io/helm
       helmVersion: 1.45.2
