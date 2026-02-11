@@ -51,8 +51,18 @@ echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab.
 apt update
 curl --location "https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh" | bash
 apt install gitlab-ce -y
+```
+
+and generate SSL certificate:
+
+```bash
 mkdir -p /etc/gitlab/ssl
-openssl req -x509 -newkey rsa:4096 -keyout /etc/gitlab/ssl/gitlab.homelab.internal.key -out /etc/gitlab/ssl/gitlab.homelab.internal.crt -days 365 -nodes -subj "/CN=gitlab.homelab.internal"
+openssl req -x509 -newkey rsa:4096 \
+  -keyout /etc/gitlab/ssl/gitlab.homelab.internal.key \
+  -out /etc/gitlab/ssl/gitlab.homelab.internal.crt \
+  -days 365 -nodes \
+  -subj "/CN=gitlab.homelab.internal" \
+  -addext "subjectAltName = DNS:gitlab.homelab.internal"
 chmod 755 /etc/gitlab/ssl
 chmod 644 /etc/gitlab/ssl/gitlab.homelab.internal.crt
 chmod 600 /etc/gitlab/ssl/gitlab.homelab.internal.key
