@@ -1,18 +1,6 @@
 ## Description
 
-DevOps home lab with:
-
-- Kubernetes
-- GitLab
-- ArgoCD
-- Local path provisioner
-- Metallb
-- Traefik Ingress Controller
-- Cert-manager
-- External DNS
-- Istio
-- VictoriaMetrics + Grafana etc.
-- Zalando Postgres Operator
+DevOps Kubernetes home lab with: GitLab, ArgoCD, Local path provisioner, Metallb, Traefik Ingress Controller, Cert-manager, External DNS, Istio, VictoriaMetrics + Grafana etc., Zalando Postgres Operator
 
 ## System Requirements:
 
