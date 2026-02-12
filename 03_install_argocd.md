@@ -82,7 +82,7 @@ for cluster in vmkube-1 vmkube-2; do
 done
 ```
 
-# Step 6: Configuring GitLab Integration
+## Step 6: Configuring GitLab Integration
 
 Create `devops` group in GitLab and add token named `argocd` with `Reporter` role and `read_api` + `read_repository` permissions (pay attention to Expiration date!)
 
@@ -99,7 +99,7 @@ argocd repocreds add \
   --password $GITLAB_TOKEN
 ```
 
-# Step 7: Add CA certificate to trusted
+## Step 7: Add CA certificate to trusted
 
 ```bash
 argocd cert add-tls \
@@ -110,7 +110,7 @@ argocd cert add-tls \
   --from ./ca.crt
 ```
 
-# Step 8: Accessing the ArgoCD Web UI via Port Forwarding
+## Step 8: Accessing the ArgoCD Web UI via Port Forwarding
 
 This step establishes a secure tunnel to access the ArgoCD web interface through port forwarding.
 
