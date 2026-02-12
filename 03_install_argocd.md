@@ -25,11 +25,11 @@ helm upgrade --install argo argo/argo-cd \
   --namespace argocd \
   --create-namespace \
   --set global.domain=argocd.vmkube-1.homelab.internal \
-  --set configs.params.server.insecure=true \
+  --set configs.params."server\.insecure"=true \
   --set server.ingress.enabled=true \
   --set server.ingress.ingressClassName=traefik \
   --set server.ingress.tls=true \
-  --set server.ingress.annotations.cert-manager\.io/cluster-issuer=my-ca-issuer \
+  --set server.ingress.annotations."cert-manager\.io/cluster-issuer"=my-ca-issuer \
   --wait
 ```
 
@@ -63,10 +63,9 @@ echo $ARGOCD_PASSWORD
 argocd login \
   --port-forward \
   --port-forward-namespace argocd \
-  --insecure \
+  --plaintext \
   --username admin \
-  --password $ARGOCD_PASSWORD \
-  --insecure
+  --password $ARGOCD_PASSWORD
 ```
 
 ## Step 5: Adding Clusters to ArgoCD
@@ -75,11 +74,10 @@ argocd login \
 for cluster in vmkube-1 vmkube-2; do
   argocd cluster add -y --port-forward \
     --port-forward-namespace argocd \
+    --plaintext \
     admin@$cluster \
     --name $cluster \
-    --label cluster-name=$cluster \
-    --upsert \
-    --insecure
+    --label cluster-name=$cluster
 done
 ```
 
@@ -94,20 +92,21 @@ export GITLAB_TOKEN=token
 argocd repocreds add \
   --port-forward \
   --port-forward-namespace argocd \
+  --plaintext \
   https://gitlab.homelab.internal/devops \
   --username token \
   --password $GITLAB_TOKEN
 ```
 
-# Step 7: Download ssl certificate for gitlab.homelab.internal and add it to trusted to ArgoCD (change ip placeholder)
+# Step 7: Add CA certificate to trusted
 
 ```bash
-scp root@192.168.192.151:/etc/gitlab/ssl/gitlab.homelab.internal.crt ./
 argocd cert add-tls \
   --port-forward \
   --port-forward-namespace argocd \
+  --plaintext \
   gitlab.homelab.internal \
-  --from ./gitlab.homelab.internal.crt
+  --from ./ca.crt
 ```
 
 # Step 8: Accessing the ArgoCD Web UI via Port Forwarding

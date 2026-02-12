@@ -25,7 +25,8 @@ sudo virt-install --name gitlab \
                   --network network=vmkube-net \
                   --import \
                   --noautoconsole \
-                  --cloud-init root-ssh-key=$HOME/.ssh/id_ed25519.pub
+                  --cloud-init root-ssh-key=$HOME/.ssh/id_ed25519.pub \
+                  --autostart
 ```
 
 Wait until ip address created:
@@ -53,22 +54,61 @@ curl --location "https://packages.gitlab.com/install/repositories/gitlab/gitlab-
 apt install gitlab-ce -y
 ```
 
-and generate SSL certificate:
+6. Generate SSL certificate:
 
 ```bash
+# switch to home directory
+cd
+# Create directory for SSL certificates
 mkdir -p /etc/gitlab/ssl
-openssl req -x509 -newkey rsa:4096 \
+
+# Generate CA private key
+openssl genrsa -out ca.key 4096
+
+# Generate CA certificate (10 years, for example)
+openssl req -x509 -new -nodes \
+  -key ca.key \
+  -days 3650 \
+  -out ca.crt \
+  -subj "/CN=My Homelab CA" \
+  -addext "basicConstraints=critical,CA:TRUE"
+
+# Generate CSR
+openssl req -new -newkey rsa:4096 -nodes \
   -keyout /etc/gitlab/ssl/gitlab.homelab.internal.key \
-  -out /etc/gitlab/ssl/gitlab.homelab.internal.crt \
-  -days 365 -nodes \
+  -out gitlab.homelab.internal.csr \
   -subj "/CN=gitlab.homelab.internal" \
   -addext "subjectAltName = DNS:gitlab.homelab.internal"
+
+# Generate certificate
+openssl x509 -req -in gitlab.homelab.internal.csr \
+  -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out /etc/gitlab/ssl/gitlab.homelab.internal.crt \
+  -days 3650 \
+  -extfile <(printf "subjectAltName=DNS:gitlab.homelab.internal")
+
+
+# set permissions
 chmod 755 /etc/gitlab/ssl
 chmod 644 /etc/gitlab/ssl/gitlab.homelab.internal.crt
 chmod 600 /etc/gitlab/ssl/gitlab.homelab.internal.key
+
+exit
 ```
 
-6. Update configuration:
+Copy ca.key/ca.crt to your local machine and create secret for cert-manager:
+
+```bash
+scp root@<ip_address>:/root/{ca.key,ca.crt}
+kubectl config use-context admin@vmkube-1
+kubectl create ns cert-manager
+kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
+kubectl config use-context admin@vmkube-2
+kubectl create ns cert-manager
+kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
+```
+
+7. Update configuration:
 
 ```bash
 echo "letsencrypt['enable'] = false" >> /etc/gitlab/gitlab.rb
@@ -89,13 +129,13 @@ It takes ~5 minutes. At the end of the reconfigure process, you can retrieve the
 cat /etc/gitlab/initial_root_password
 ```
 
-7. Add gitlab hostname to your local hosts file (change ip placeholder):
+8. Add gitlab hostname to your local hosts file (change ip placeholder):
 
 ```bash
 sudo bash -c 'echo "<ip_address> gitlab.homelab.internal" >> /etc/hosts'
 ```
 
-8. Patch talos VMs hosts in order to resolve gitlab.homelab.internal (change ip placeholder):
+9. Patch talos VMs hosts in order to resolve gitlab.homelab.internal (change ip placeholder):
 
 ```bash
 for cluster in vmkube-1 vmkube-2; do
@@ -120,6 +160,15 @@ Ensure that ip address is resolved correctly from k8s:
 ```bash
 kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup gitlab.homelab.internal
 ```
+
+10. Import ca.crt to local system:
+
+```bash
+sudo cp ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
+Then import to browser. Check `gitlab.homelab.internal` from both curl and browser - there should be no certificate errors.
 
 Step completed!
 
