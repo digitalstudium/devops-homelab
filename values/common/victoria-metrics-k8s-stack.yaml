@@ -1,0 +1,10 @@
+victoria-metrics-operator:
+  global:
+    image:
+      registry: mirror.gcr.io
+  admissionWebhooks:
+    certManager:
+      enabled: true
+      issuer:
+        name: my-ca-issuer
+        kind: ClusterIssuer

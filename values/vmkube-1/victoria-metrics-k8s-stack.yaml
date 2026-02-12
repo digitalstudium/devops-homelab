@@ -50,6 +50,8 @@ defaultDashboards:
   enabled: false
 
 grafana:
+  global:
+    imageRegistry: mirror.gcr.io
   plugins:
     - victoriametrics-metrics-datasource
   sidecar:
