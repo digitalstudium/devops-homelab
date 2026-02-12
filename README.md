@@ -1,3 +1,25 @@
+## Description
+
+DevOps home lab with:
+
+- Kubernetes
+- GitLab
+- ArgoCD
+- Local path provisioner
+- Metallb
+- Traefik Ingress Controller
+- Cert-manager
+- External DNS
+- Istio
+- VictoriaMetrics + Grafana etc.
+- Zalando Postgres Operator
+
+## System Requirements:
+
+This was tested on Debian 13 laptop with 16 cores, 32 GB RAM, and 200 GB disk space.
+
+## Installation
+
 Follow instructions in these files:
 
 [**01_install_k8s.md**](https://github.com/digitalstudium/devops-homelab/blob/main/01_install_k8s.md)
