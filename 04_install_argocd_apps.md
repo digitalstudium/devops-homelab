@@ -47,4 +47,7 @@ nslookup postgres.vmkube-1.homelab.internal
 
 It should be resolved to ingress LoadBalancer IP.
 
+7. Unseal OpenBao
+   Use this [guide](https://openbao.org/docs/platform/k8s/helm/run/#cli-initialize-and-unseal)
+
 Step completed!

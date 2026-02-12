@@ -1,0 +1,17 @@
+server:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    hosts:
+      - host: openbao.vmkube-1.homelab.internal
+        paths:
+          - "/"
+    tls:
+      - secretName: openbao-server-tls
+        hosts:
+          - openbao.vmkube-1.homelab.internal
+
+injector:
+  image:
+    registry: "mirror.gcr.io"

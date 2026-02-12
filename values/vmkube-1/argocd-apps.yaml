@@ -50,6 +50,10 @@ charts:
       helmRepo: https://charts.containeroo.ch
       helmVersion: v0.0.35
       privileged: true
+  vmkube-1:
+    - name: openbao
+      helmRepo: https://openbao.github.io/openbao-helm
+      helmVersion: 0.25.3
 
 yamls:
   allClusters:
