@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: vmagent-vmkube-1
+spec:
+  hosts:
+    - vmagent.vmkube-1.homelab.internal
+  ports:
+    - number: 80
+      name: http-port
+      protocol: HTTP
+      targetPort: 443
+    - number: 443
+      name: https-port
+      protocol: HTTPS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: vmagent-vmkube-1
+spec:
+  host: vmagent.vmkube-1.homelab.internal
+  trafficPolicy:
+    portLevelSettings:
+      - port:
+          number: 80
+        tls:
+          credentialName: root-secret-cacert
+          mode: SIMPLE # initiates HTTPS when accessing vmagent.vmkube-1.homelab.internal

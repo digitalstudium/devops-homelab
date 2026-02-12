@@ -96,16 +96,20 @@ chmod 600 /etc/gitlab/ssl/gitlab.homelab.internal.key
 exit
 ```
 
-Copy ca.key/ca.crt to your local machine and create secret for cert-manager:
+Copy ca.key/ca.crt to your local machine and create secrets for cert-manager and vmagent:
 
 ```bash
 scp root@<ip_address>:/root/{ca.key,ca.crt}
 kubectl config use-context admin@vmkube-1
 kubectl create ns cert-manager
 kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
+kubectl create ns victoria-metrics-k8s-stack
+kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
 kubectl config use-context admin@vmkube-2
 kubectl create ns cert-manager
 kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
+kubectl create ns victoria-metrics-k8s-stack
+kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
 ```
 
 7. Update configuration:

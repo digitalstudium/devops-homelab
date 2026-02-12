@@ -26,6 +26,7 @@ helm upgrade --install argo argo/argo-cd \
   --create-namespace \
   --set global.domain=argocd.vmkube-1.homelab.internal \
   --set configs.params."server\.insecure"=true \
+  --set configs.cm."timeout\.reconciliation"=30s \
   --set server.ingress.enabled=true \
   --set server.ingress.ingressClassName=traefik \
   --set server.ingress.tls=true \
