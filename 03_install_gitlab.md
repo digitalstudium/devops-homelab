@@ -52,69 +52,22 @@ echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab.
 apt update
 curl --location "https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh" | bash
 apt install gitlab-ce -y
-```
-
-6. Generate SSL certificate:
-
-```bash
-# switch to home directory
-cd
-# Create directory for SSL certificates
+# create directory for SSL certificates
 mkdir -p /etc/gitlab/ssl
-
-# Generate CA private key
-openssl genrsa -out ca.key 4096
-
-# Generate CA certificate (10 years, for example)
-openssl req -x509 -new -nodes \
-  -key ca.key \
-  -days 3650 \
-  -out ca.crt \
-  -subj "/CN=My Homelab CA" \
-  -addext "basicConstraints=critical,CA:TRUE"
-
-# Generate CSR
-openssl req -new -newkey rsa:4096 -nodes \
-  -keyout /etc/gitlab/ssl/gitlab.homelab.internal.key \
-  -out gitlab.homelab.internal.csr \
-  -subj "/CN=gitlab.homelab.internal" \
-  -addext "subjectAltName = DNS:gitlab.homelab.internal"
-
-# Generate certificate
-openssl x509 -req -in gitlab.homelab.internal.csr \
-  -CA ca.crt -CAkey ca.key -CAcreateserial \
-  -out /etc/gitlab/ssl/gitlab.homelab.internal.crt \
-  -days 3650 \
-  -extfile <(printf "subjectAltName=DNS:gitlab.homelab.internal")
-
-
-# set permissions
 chmod 755 /etc/gitlab/ssl
-chmod 644 /etc/gitlab/ssl/gitlab.homelab.internal.crt
-chmod 600 /etc/gitlab/ssl/gitlab.homelab.internal.key
-
 exit
 ```
 
-Copy ca.key/ca.crt to your local machine and create secrets for cert-manager and vmagent:
+6. Copy SSL certificate issued earlier from local machine:
 
 ```bash
-scp root@<ip_address>:/root/{ca.key,ca.crt}
-kubectl config use-context admin@vmkube-1
-kubectl create ns cert-manager
-kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
-kubectl create ns victoria-metrics-k8s-stack
-kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
-kubectl config use-context admin@vmkube-2
-kubectl create ns cert-manager
-kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
-kubectl create ns victoria-metrics-k8s-stack
-kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
+scp {gitlab.homelab.internal.crt,gitlab.homelab.internal.key} root@<ip_address>:/etc/gitlab/ssl/
 ```
 
 7. Update configuration:
 
 ```bash
+ssh root@<ip_address>
 echo "letsencrypt['enable'] = false" >> /etc/gitlab/gitlab.rb
 sed -i "s|external_url 'http://gitlab.example.com'|external_url 'https://gitlab.homelab.internal'|" /etc/gitlab/gitlab.rb
 ```
@@ -142,37 +95,38 @@ sudo bash -c 'echo "<ip_address> gitlab.homelab.internal" >> /etc/hosts'
 9. Patch talos VMs hosts in order to resolve gitlab.homelab.internal (change ip placeholder):
 
 ```bash
+export GITLAB_IP="<ip_address>"
 for cluster in vmkube-1 vmkube-2; do
   export TALOSCONFIG=/var/lib/vmkube/$cluster/configs/talosconfig
-  talosctl patch machineconfig --mode=auto -p '{
-    "machine": {
-      "network": {
-        "extraHostEntries": [
-          {
-            "ip": "<ip_address>",
-            "aliases": ["gitlab.homelab.internal"]
-          }
-        ]
+  nodes=$(kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers)
+  for node in $nodes; do
+    talosctl patch machineconfig -n "$node" --mode=auto -p '{
+      "machine": {
+        "network": {
+          "extraHostEntries": [
+            {
+              "ip": "'"$GITLAB_IP"'",
+              "aliases": ["gitlab.homelab.internal"]
+            }
+          ]
+        }
       }
-    }
-  }'
+    }'
+  done
 done
 ```
 
-Ensure that ip address is resolved correctly from k8s:
+Then reboot:
+
+```bash
+sudo reboot
+```
+
+After rebooting, ensure that the IP address is resolved correctly from k8s:
 
 ```bash
 kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup gitlab.homelab.internal
 ```
-
-10. Import ca.crt to local system:
-
-```bash
-sudo cp ca.crt /usr/local/share/ca-certificates/
-sudo update-ca-certificates
-```
-
-Then import to browser. Check `gitlab.homelab.internal` from both curl and browser - there should be no certificate errors.
 
 Step completed!
 

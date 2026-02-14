@@ -14,8 +14,7 @@ registries = [
     { remote = "ghcr.io", port = 5003 },
     { remote = "registry-1.docker.io", port = 5004 },
     { remote = "mirror.gcr.io", port = 5005 },
-    { remote = "public.ecr.aws", port = 5006 },
-    { remote = "quay.io", port = 5007 },
+    { remote = "quay.io", port = 5006 },
 ]
 
 [control_plane_node]

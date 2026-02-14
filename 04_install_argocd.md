@@ -122,7 +122,7 @@ kubectl -n argocd port-forward deployments/argo-argocd-server 8080:8080
 **After running this command:**
 
 1. Open your web browser
-2. Navigate to: `http://127.0.0.1:8080`
+2. Navigate to: `http://127.0.0.1:8080` (http, not https, it's important)
 3. Log in using:
    - **Username:** `admin`
    - **Password:** The password you retrieved in Step 3

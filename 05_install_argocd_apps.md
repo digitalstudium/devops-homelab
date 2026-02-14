@@ -23,20 +23,21 @@ kubectl config use-context admin@vmkube-2
 kubectl get svc -n external-dns coredns
 ```
 
-Next steps depend on your environment.
-
-For example you can add all DNS IPs to `/etc/resolv.conf` like this:
+Place a script `/etc/NetworkManager/dispatcher.d/50-set-vmkube-dns` with content:
 
 ```bash
-nameserver 192.168.193.2
-nameserver 192.168.3.1
+#!/bin/bash
+if [ "$1" = "vmkube-br0" ] && [ "$2" = "up" ]; then
+resolvectl dns "$1" <first dns ip> <second dns ip>
+resolvectl domain "$1" "~homelab.internal"
+fi
 ```
 
-or like this:
+Make it executable and restart NetworkManager:
 
 ```bash
-sudo resolvectl dns vmkube-br0 192.168.194.2 192.168.193.2
-sudo resolvectl domain vmkube-br0 "~homelab.internal"
+sudo chmod 755 /etc/NetworkManager/dispatcher.d/50-set-vmkube-dns
+sudo systemctl restart NetworkManager
 ```
 
 Check if DNS resolution works:
@@ -49,5 +50,20 @@ It should be resolved to ingress LoadBalancer IP.
 
 7. Unseal OpenBao
    Use this [guide](https://openbao.org/docs/platform/k8s/helm/run/#cli-initialize-and-unseal)
+
+```bash
+kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator init
+kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 1>
+kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 2>
+...
+kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 5>
+```
+
+8. Login to ArgoCD, Grafana, OpenBao etc.
+
+```bash
+# reset grafana password
+kubectl -n victoria-metrics-k8s-stack exec -it <grafana_pod> -- grafana-cli admin reset-admin-password 123456
+```
 
 Step completed!

@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: "https://helm.digitalstudium.com"
       chart: argocd-apps
-      targetRevision: 0.3.2
+      targetRevision: 0.3.4
       helm:
         valueFiles:
           - $values/values/vmkube-1/argocd-apps.yaml

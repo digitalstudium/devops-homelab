@@ -8,7 +8,7 @@ charts:
   valueFiles:
     - $values/values/common/{{ .chart.alias | default .chart.name }}.yaml
     - $values/values/{{ .cluster.name }}/{{ .chart.alias | default .chart.name }}.yaml
-  allClusters:
+  common:
     - name: cert-manager
       helmRepo: https://charts.jetstack.io
       helmVersion: v1.19.3
@@ -50,13 +50,16 @@ charts:
       helmRepo: https://charts.containeroo.ch
       helmVersion: v0.0.35
       privileged: true
+    - name: external-secrets
+      helmRepo: https://charts.external-secrets.io
+      helmVersion: 2.0.0
   vmkube-1:
     - name: openbao
       helmRepo: https://openbao.github.io/openbao-helm
       helmVersion: 0.25.3
 
 yamls:
-  allClusters:
+  common:
     - name: cert-manager
     - name: metallb
     - name: etcd-ext-dns
