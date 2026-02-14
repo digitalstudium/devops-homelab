@@ -64,5 +64,4 @@ yamls:
     - name: metallb
     - name: etcd-ext-dns
       namespace: external-dns
-  vmkube-2:
     - name: victoria-metrics-k8s-stack
