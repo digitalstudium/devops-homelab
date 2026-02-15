@@ -18,7 +18,7 @@ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
 
 ```bash
 sudo virt-install --name gitlab \
-                  --ram 4096 \
+                  --ram 3072 \
                   --vcpus 4 \
                   --disk /var/lib/libvirt/images/debian-13-generic-amd64.qcow2 \
                   --os-variant debian13 \
@@ -39,11 +39,11 @@ sudo watch virsh domifaddr gitlab
 
 ```bash
 ssh root@<ip_address>
-fallocate -l 2G /swapfile.
-chmod 600 /swapfile.
-mkswap /swapfile.
-swapon /swapfile.
-echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab.
+fallocate -l 2G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
 ```
 
 5. Install gitlab via instructions [https://docs.gitlab.com/install/package/debian](https://docs.gitlab.com/install/package/debian) :
@@ -72,7 +72,7 @@ echo "letsencrypt['enable'] = false" >> /etc/gitlab/gitlab.rb
 sed -i "s|external_url 'http://gitlab.example.com'|external_url 'https://gitlab.homelab.internal'|" /etc/gitlab/gitlab.rb
 ```
 
-If lack of resources, append [this config](https://docs.gitlab.com/omnibus/settings/memory_constrained_envs/#configuration-with-all-the-changes) as well (but remove `memory_bytes: 500000,` for gitaly because it's too low (OOM!))
+Append [this config](https://docs.gitlab.com/omnibus/settings/memory_constrained_envs/#configuration-with-all-the-changes) as well (but remove `memory_bytes: 500000,` for gitaly because it's too low (OOM!))
 
 Then run:
 

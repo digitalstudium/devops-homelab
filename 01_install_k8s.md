@@ -23,8 +23,8 @@ ram = 4096
 system_disk = 7
 
 [worker_node]
-cpus = 8
-ram = 8192
+cpus = 4
+ram = 4096
 system_disk = 15
 storage_disk = 10
 

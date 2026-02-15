@@ -108,11 +108,9 @@ grafana:
 
   envFromSecret: "grafana.postgres-cluster.credentials.postgresql.acid.zalan.do"
   env:
+    GF_DATABASE_TYPE: postgres
+    GF_DATABASE_HOST: postgres-cluster:5432
+    GF_DATABASE_NAME: grafana
+    GF_DATABASE_SSL_MODE: require
     GF_DATABASE_USER: "$(username)"
     GF_DATABASE_PASSWORD: "$(password)"
-  grafana.ini:
-    database:
-      type: postgres
-      ssl_mode: require
-      host: postgres-cluster:5432
-      name: grafana

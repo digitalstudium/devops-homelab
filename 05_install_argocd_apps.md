@@ -64,6 +64,8 @@ kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal K
 ```bash
 # get grafana password
 kubectl get secret -n victoria-metrics-k8s-stack vmkube-1-victoria-metrics-k8s-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d
+# if password does not work, just reset it
+kubectl exec -n victoria-metrics-k8s-stack -it $(kubectl get pods -n victoria-metrics-k8s-stack -l "app.kubernetes.io/name=grafana" -o jsonpath="{.items[0].metadata.name}") -- grafana cli admin reset-admin-password 123456
 ```
 
 Step completed!

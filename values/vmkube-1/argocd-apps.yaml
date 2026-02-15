@@ -76,7 +76,7 @@ charts:
       helmVersion: 0.70.0
       privileged: true
       annotations:
-        argocd.argoproj.io/sync-wave: "6"      
+        argocd.argoproj.io/sync-wave: "6"
   vmkube-1:
     - name: openbao
       helmRepo: https://openbao.github.io/openbao-helm
