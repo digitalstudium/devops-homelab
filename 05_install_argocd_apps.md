@@ -55,8 +55,7 @@ It should be resolved to ingress LoadBalancer IP.
 kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator init
 kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 1>
 kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 2>
-...
-kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 5>
+kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 3>
 ```
 
 8. Login to ArgoCD, Grafana, OpenBao etc.
