@@ -62,8 +62,8 @@ kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal K
 8. Login to ArgoCD, Grafana, OpenBao etc.
 
 ```bash
-# reset grafana password
-kubectl -n victoria-metrics-k8s-stack exec -it <grafana_pod> -- grafana-cli admin reset-admin-password 123456
+# get grafana password
+kubectl get secret -n victoria-metrics-k8s-stack vmkube-1-victoria-metrics-k8s-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d
 ```
 
 Step completed!

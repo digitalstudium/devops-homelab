@@ -105,3 +105,14 @@ grafana:
       - secretName: grafana-ingress-tls
         hosts:
           - grafana.vmkube-1.homelab.internal
+
+  envFromSecret: "grafana.postgres-cluster.credentials.postgresql.acid.zalan.do"
+  env:
+    GF_DATABASE_USER: "$(username)"
+    GF_DATABASE_PASSWORD: "$(password)"
+  grafana.ini:
+    database:
+      type: postgres
+      ssl_mode: require
+      host: postgres-cluster:5432
+      name: grafana

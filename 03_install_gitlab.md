@@ -92,37 +92,7 @@ cat /etc/gitlab/initial_root_password
 sudo bash -c 'echo "<ip_address> gitlab.homelab.internal" >> /etc/hosts'
 ```
 
-9. Patch talos VMs hosts in order to resolve gitlab.homelab.internal (change ip placeholder):
-
-```bash
-export GITLAB_IP="<ip_address>"
-for cluster in vmkube-1 vmkube-2; do
-  export TALOSCONFIG=/var/lib/vmkube/$cluster/configs/talosconfig
-  nodes=$(kubectl get nodes -o=custom-columns=NAME:.metadata.name --no-headers)
-  for node in $nodes; do
-    talosctl patch machineconfig -n "$node" --mode=auto -p '{
-      "machine": {
-        "network": {
-          "extraHostEntries": [
-            {
-              "ip": "'"$GITLAB_IP"'",
-              "aliases": ["gitlab.homelab.internal"]
-            }
-          ]
-        }
-      }
-    }'
-  done
-done
-```
-
-Then reboot:
-
-```bash
-sudo reboot
-```
-
-After rebooting, ensure that the IP address is resolved correctly from k8s:
+Ensure that the IP address is resolved correctly from k8s:
 
 ```bash
 kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup gitlab.homelab.internal

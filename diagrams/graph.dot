@@ -1,5 +1,6 @@
 digraph G {
   local_path_provisioner -> etcd;
+  local_path_provisioner -> openbao;
   metallb -> ingress;
   metallb -> external_dns;
   etcd -> external_dns;
@@ -11,6 +12,7 @@ digraph G {
   postgres_operator -> postgres_clusters;
   local_path_provisioner -> postgres_clusters;
   ingress-> postgres_operator_ui;
+  ingress-> openbao;
   ingress-> victoria_metrics_k8s_stack;
   local_path_provisioner-> victoria_metrics_k8s_stack;
   istio->victoria_metrics_k8s_stack;

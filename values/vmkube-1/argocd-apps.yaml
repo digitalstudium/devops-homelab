@@ -9,59 +9,97 @@ charts:
     - $values/values/common/{{ .chart.alias | default .chart.name }}.yaml
     - $values/values/{{ .cluster.name }}/{{ .chart.alias | default .chart.name }}.yaml
   common:
+    - name: local-path-provisioner
+      helmRepo: https://charts.containeroo.ch
+      helmVersion: v0.0.35
+      privileged: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
     - name: cert-manager
       helmRepo: https://charts.jetstack.io
       helmVersion: v1.19.3
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
     - name: postgres-operator
       helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
       helmVersion: 1.15.1
-    - name: postgres-operator-ui
-      helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
-      helmVersion: 1.15.1
-      namespace: postgres-operator
-    - name: coredns
-      helmRepo: https://coredns.github.io/helm
-      helmVersion: 1.45.2
-      namespace: external-dns
-    - name: external-dns
-      helmRepo: https://kubernetes-sigs.github.io/external-dns
-      helmVersion: 1.20.0
-    - name: traefik
-      helmRepo: https://traefik.github.io/charts
-      helmVersion: 39.0.0
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
     - name: base
       alias: istio-base
       helmRepo: https://istio-release.storage.googleapis.com/charts
       helmVersion: 1.28.3
       namespace: istio-system
-    - name: istiod
-      helmRepo: https://istio-release.storage.googleapis.com/charts
-      helmVersion: 1.28.3
-      namespace: istio-system
-    - name: victoria-metrics-k8s-stack
-      helmRepo: https://victoriametrics.github.io/helm-charts
-      helmVersion: 0.70.0
-      privileged: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
     - name: metallb
       helmRepo: https://metallb.github.io/metallb
       helmVersion: 0.15.3
       privileged: true
-    - name: local-path-provisioner
-      helmRepo: https://charts.containeroo.ch
-      helmVersion: v0.0.35
-      privileged: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
     - name: external-secrets
       helmRepo: https://charts.external-secrets.io
       helmVersion: 2.0.0
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+    - name: istiod
+      helmRepo: https://istio-release.storage.googleapis.com/charts
+      helmVersion: 1.28.3
+      namespace: istio-system
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
+    - name: coredns
+      helmRepo: https://coredns.github.io/helm
+      helmVersion: 1.45.2
+      namespace: external-dns
+      annotations:
+        argocd.argoproj.io/sync-wave: "3"
+    - name: external-dns
+      helmRepo: https://kubernetes-sigs.github.io/external-dns
+      helmVersion: 1.20.0
+      annotations:
+        argocd.argoproj.io/sync-wave: "4"
+    - name: traefik
+      helmRepo: https://traefik.github.io/charts
+      helmVersion: 39.0.0
+      annotations:
+        argocd.argoproj.io/sync-wave: "5"
+    - name: postgres-operator-ui
+      helmRepo: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+      helmVersion: 1.15.1
+      namespace: postgres-operator
+      annotations:
+        argocd.argoproj.io/sync-wave: "6"
+    - name: victoria-metrics-k8s-stack
+      helmRepo: https://victoriametrics.github.io/helm-charts
+      helmVersion: 0.70.0
+      privileged: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "6"      
   vmkube-1:
     - name: openbao
       helmRepo: https://openbao.github.io/openbao-helm
       helmVersion: 0.25.3
-
+      annotations:
+        argocd.argoproj.io/sync-wave: "6"
 yamls:
   common:
     - name: cert-manager
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
     - name: metallb
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
     - name: etcd-ext-dns
       namespace: external-dns
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
+  vmkube-1:
     - name: victoria-metrics-k8s-stack
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
+  vmkube-2:
+    - name: victoria-metrics-k8s-stack
+      annotations:
+        argocd.argoproj.io/sync-wave: "3"
