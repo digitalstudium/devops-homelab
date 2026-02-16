@@ -95,6 +95,7 @@ sudo bash -c 'echo "<ip_address> gitlab.homelab.internal" >> /etc/hosts'
 Ensure that the IP address is resolved correctly from k8s:
 
 ```bash
+sudo kill -HUP $(cat /var/run/libvirt/network/vmkube-net.pid)
 kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup gitlab.homelab.internal
 ```
 
