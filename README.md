@@ -12,8 +12,10 @@ Follow instructions in these files:
 
 [**01_install_k8s.md**](https://github.com/digitalstudium/devops-homelab/blob/main/01_install_k8s.md)
 
-[**02_install_gitlab.md**](https://github.com/digitalstudium/devops-homelab/blob/main/02_install_gitlab.md)
+[**02_create_ca_and_cert.md**](https://github.com/digitalstudium/devops-homelab/blob/main/02_create_ca_and_cert.md)
 
-[**03_install_argocd.md**](https://github.com/digitalstudium/devops-homelab/blob/main/03_install_argocd.md)
+[**03_install_gitlab.md**](https://github.com/digitalstudium/devops-homelab/blob/main/03_install_gitlab.md)
 
-[**04_install_argocd_apps.md**](https://github.com/digitalstudium/devops-homelab/blob/main/04_install_argocd_apps.md)
+[**04_install_argocd.md**](https://github.com/digitalstudium/devops-homelab/blob/main/04_install_argocd.md)
+
+[**05_install_argocd_apps.md**](https://github.com/digitalstudium/devops-homelab/blob/main/05_install_argocd_apps.md)
