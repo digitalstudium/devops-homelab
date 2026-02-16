@@ -23,6 +23,12 @@ kubectl config use-context admin@vmkube-2
 kubectl get svc -n external-dns coredns
 ```
 
+install `systemd-resolved`:
+
+```bash
+sudo apt install -y systemd-resolved
+```
+
 Place a script `/etc/NetworkManager/dispatcher.d/50-set-vmkube-dns` with content:
 
 ```bash
