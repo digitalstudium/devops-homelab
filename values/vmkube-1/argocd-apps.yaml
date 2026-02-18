@@ -99,6 +99,9 @@ yamls:
     - name: victoria-metrics-k8s-stack
       annotations:
         argocd.argoproj.io/sync-wave: "2"
+    - name: gitops-promoter
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
   vmkube-2:
     - name: victoria-metrics-k8s-stack
       annotations:

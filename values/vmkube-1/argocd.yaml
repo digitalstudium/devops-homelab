@@ -4,6 +4,7 @@ global:
 configs:
   params:
     server.insecure: true
+    hydrator.enabled: true
   cm:
     timeout.reconciliation: 30s
     resource.customizations.health.argoproj.io_Application: |
@@ -27,3 +28,6 @@ server:
     tls: true
     annotations:
       cert-manager.io/cluster-issuer: my-ca-issuer
+
+commitServer:
+  enabled: true

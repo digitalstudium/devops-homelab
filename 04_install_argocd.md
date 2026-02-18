@@ -30,12 +30,14 @@ helm upgrade --install argo argo/argo-cd \
 
 **Parameter Explanation:**
 
-- `global.domain=argocd.vmkube-1.homelab.internal` - Domain for accessing ArgoCD (will be accessible after ingress installation)
-- `configs.params.server.insecure=true` - Allow insecure connections (SSL will be terminated at the Ingress level)
-- `server.ingress.enabled=true` - Enable Ingress
-- `server.ingress.ingressClassName=traefik` - Use the Traefik Ingress Controller
-- `server.ingress.tls=true` - Enable Ingress TLS
-- `server.ingress.annotations.cert-manager\.io/cluster-issuer=my-ca-issuer` - Annotation for automatic certificate issuance using cert-manager
+- `global.domain=argocd.vmkube-1.homelab.internal` – Domain for accessing ArgoCD (will be accessible after ingress installation).
+- `configs.params.server.insecure=true` – Allow insecure connections inside the cluster (SSL termination is handled at the Ingress level).
+- `configs.params.hydrator.enabled=true` – Enable Source Hydrator (Manifest Hydrator) functionality, allowing dynamic manifest generation and Git writes.
+- `commitServer.enabled=true` – Enable the commit server component, required for writing generated manifests back to Git when using Source Hydrator.
+- `server.ingress.enabled=true` – Enable Ingress.
+- `server.ingress.ingressClassName=traefik` – Use the Traefik Ingress Controller.
+- `server.ingress.tls=true` – Enable Ingress TLS.
+- `server.ingress.annotations.cert-manager\.io/cluster-issuer=my-ca-issuer` – Annotation for automatic certificate issuance using cert-manager.
 
 **Note:** Pay attention to the escaped dot in `cert-manager\.io`. This is necessary because a dot has special meaning in Helm parameters.
 
