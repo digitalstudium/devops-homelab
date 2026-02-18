@@ -17,6 +17,7 @@ Observe sync in ArgoCD UI.
 Check `EXTERNAL-IP` of the coredns (external-dns) service:
 
 ```bash
+export KUBECONFIG=~/.kube/vmkube
 kubectl config use-context admin@vmkube-1
 kubectl get svc -n external-dns coredns
 kubectl config use-context admin@vmkube-2
@@ -50,6 +51,12 @@ Check if DNS resolution works:
 
 ```bash
 nslookup postgres.vmkube-1.homelab.internal
+nslookup postgres.vmkube-2.homelab.internal
+export KUBECONFIG=~/.kube/vmkube
+kubectl config use-context admin@vmkube-1
+kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup postgres.vmkube-2.homelab.internal
+kubectl config use-context admin@vmkube-2
+kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup postgres.vmkube-1.homelab.internal
 ```
 
 It should be resolved to ingress LoadBalancer IP.
