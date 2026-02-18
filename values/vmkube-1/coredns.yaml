@@ -31,3 +31,7 @@ servers:
       - name: reload
       - name: loop
       - name: loadbalance
+
+
+service:
+  loadBalancerIP: "192.168.193.2"
