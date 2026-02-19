@@ -37,7 +37,29 @@ chmod 644 gitlab.homelab.internal.crt
 chmod 600 gitlab.homelab.internal.key
 ```
 
-4. Create Kubernetes secrets
+4. Issue Gitlab registry certificate
+
+```bash
+# Generate CSR
+openssl req -new -newkey rsa:4096 -nodes \
+  -keyout registry.gitlab.homelab.internal.key \
+  -out registry.gitlab.homelab.internal.csr \
+  -subj "/CN=registry.gitlab.homelab.internal" \
+  -addext "subjectAltName = DNS:registry.gitlab.homelab.internal"
+
+# Generate certificate
+openssl x509 -req -in registry.gitlab.homelab.internal.csr \
+  -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out registry.gitlab.homelab.internal.crt \
+  -days 3650 \
+  -extfile <(printf "subjectAltName=DNS:registry.gitlab.homelab.internal")
+
+# set permissions
+chmod 644 registry.gitlab.homelab.internal.crt
+chmod 600 registry.gitlab.homelab.internal.key
+```
+
+5. Create Kubernetes secrets
 
 ```bash
 export KUBECONFIG=~/.kube/vmkube

@@ -58,10 +58,11 @@ chmod 755 /etc/gitlab/ssl
 exit
 ```
 
-6. Copy SSL certificate issued earlier from local machine:
+6. Copy SSL certificates issued earlier from local machine:
 
 ```bash
 scp {gitlab.homelab.internal.crt,gitlab.homelab.internal.key} root@<ip_address>:/etc/gitlab/ssl/
+scp {registry.gitlab.homelab.internal.crt,registry.gitlab.homelab.internal.key} root@<ip_address>:/etc/gitlab/ssl/
 ```
 
 7. Update configuration:
@@ -69,6 +70,7 @@ scp {gitlab.homelab.internal.crt,gitlab.homelab.internal.key} root@<ip_address>:
 ```bash
 ssh root@<ip_address>
 echo "letsencrypt['enable'] = false" >> /etc/gitlab/gitlab.rb
+echo "registry_external_url 'https://registry.gitlab.homelab.internal'" >> /etc/gitlab/gitlab.rb
 sed -i "s|external_url 'http://gitlab.example.com'|external_url 'https://gitlab.homelab.internal'|" /etc/gitlab/gitlab.rb
 ```
 
@@ -90,6 +92,7 @@ cat /etc/gitlab/initial_root_password
 
 ```bash
 sudo bash -c 'echo "<ip_address> gitlab.homelab.internal" >> /etc/hosts'
+sudo bash -c 'echo "<ip_address> registry.gitlab.homelab.internal" >> /etc/hosts'
 ```
 
 Ensure that the IP address is resolved correctly from k8s:

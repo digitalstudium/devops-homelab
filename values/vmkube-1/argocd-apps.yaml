@@ -78,11 +78,28 @@ charts:
       annotations:
         argocd.argoproj.io/sync-wave: "6"
   vmkube-1:
+    - name: argo-rollouts
+      helmRepo: https://argoproj.github.io/argo-helm
+      helmVersion: 2.40.5
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+    - name: kargo
+      helmRepo: oci://ghcr.io/akuity/kargo-charts/kargo
+      helmVersion: 1.9.3
+      annotations:
+        argocd.argoproj.io/sync-wave: "3"
     - name: openbao
       helmRepo: https://openbao.github.io/openbao-helm
       helmVersion: 0.25.3
       annotations:
         argocd.argoproj.io/sync-wave: "6"
+  vmkube-2:
+    - name: gitlab-runner
+      helmRepo: https://charts.gitlab.io
+      helmVersion: 0.85.0
+      privileged: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
 yamls:
   common:
     - name: cert-manager
@@ -99,10 +116,10 @@ yamls:
     - name: victoria-metrics-k8s-stack
       annotations:
         argocd.argoproj.io/sync-wave: "2"
-    - name: gitops-promoter
-      annotations:
-        argocd.argoproj.io/sync-wave: "1"
   vmkube-2:
     - name: victoria-metrics-k8s-stack
       annotations:
         argocd.argoproj.io/sync-wave: "3"
+    - name: gitlab-runner
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"

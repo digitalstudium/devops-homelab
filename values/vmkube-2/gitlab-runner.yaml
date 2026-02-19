@@ -1,0 +1,12 @@
+gitlabUrl: http://gitlab.homelab.internal
+
+runnerRegistrationToken: "glrt-6rWhGa4uIxjxuhB0vjpaNG86MQp0OjEKdToxCw.01.120wp0piq"
+
+rbac:
+  create: true
+
+runners:
+  privileged: true
+
+podLabels:
+  sidecar.istio.io/inject: "true"

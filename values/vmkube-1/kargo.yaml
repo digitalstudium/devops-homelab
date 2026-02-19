@@ -1,0 +1,15 @@
+api:
+  host: kargo.vmkube-1.homelab.internal
+  tls:
+    enabled: false
+    terminatedUpstream: true
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: traefik
+    tls:
+      selfSignedCert: false
+  adminAccount:
+    passwordHash: $2y$10$y5mpwUDfmbm4fa3nS7CuReDMTgX8uFYJzyQkhAnmXBS.z1Yp0077y
+    tokenSigningKey: QOZZBS2DuX4EhwpgOeRARIwxKzlrs3XQ

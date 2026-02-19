@@ -1,0 +1,42 @@
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: gitlab
+spec:
+  hosts:
+    - gitlab.homelab.internal
+  ports:
+    - number: 80
+      name: http-port
+      protocol: HTTP
+      targetPort: 443
+    - number: 443
+      name: https-port
+      protocol: HTTPS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: gitlab
+spec:
+  workloadSelector:
+    matchLabels:
+      app: vmkube-2-gitlab-runner-gitlab-runner # <-- must match labels on the runner pod
+  host: gitlab.homelab.internal
+  trafficPolicy:
+    portLevelSettings:
+      - port:
+          number: 80
+        tls:
+          credentialName: root-secret-cacert
+          mode: SIMPLE # initiates HTTPS when accessing gitlab.homelab.internal
+---
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: access-logging
+spec:
+  accessLogging:
+    - providers:
+        - name: envoy
