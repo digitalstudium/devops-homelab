@@ -2,7 +2,8 @@
 2. Add your public ssh key to the GitLab account.
 3. Clone the repository to your local machine.
 4. Copy and push `values` and `yamls` folders from github repo to gitlab `argocd-apps` repo.
-5. Then run:
+5. Add runner registration token from gitlab to `values/vmkube-2/gitlab-runner.yaml`
+6. Then run:
 
 ```bash
 export KUBECONFIG=~/.kube/vmkube
@@ -12,7 +13,7 @@ kubectl apply -f yamls/vmkube-1/root-app.yaml
 
 Observe sync in ArgoCD UI.
 
-6. DNS settings.
+7. DNS settings.
 
 Check `EXTERNAL-IP` of the coredns (external-dns) service:
 
@@ -61,7 +62,7 @@ kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --resta
 
 It should be resolved to ingress LoadBalancer IP.
 
-7. Unseal OpenBao
+8. Unseal OpenBao
    Use this [guide](https://openbao.org/docs/platform/k8s/helm/run/#cli-initialize-and-unseal)
 
 ```bash
@@ -71,7 +72,7 @@ kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal K
 kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 3>
 ```
 
-8. Login to ArgoCD, Grafana, OpenBao etc.
+9. Login to ArgoCD, Grafana, OpenBao etc.
 
 ```bash
 # get grafana password

@@ -1,12 +1,37 @@
-gitlabUrl: http://gitlab.homelab.internal
+gitlabUrl: https://gitlab.homelab.internal
 
 runnerRegistrationToken: "glrt-6rWhGa4uIxjxuhB0vjpaNG86MQp0OjEKdToxCw.01.120wp0piq"
 
 rbac:
   create: true
 
-runners:
-  privileged: true
-
 podLabels:
   sidecar.istio.io/inject: "true"
+
+certsSecretName: root-secret-cacert
+
+runners:
+  privileged: true
+  config: |
+    [[runners]]
+      name = "k8s"
+      executor = "kubernetes"
+      [runners.kubernetes]
+        namespace = "{{ default .Release.Namespace .Values.runners.jobNamespace }}"
+        image = "docker:24.0.5"
+        privileged = true
+        [[runners.kubernetes.volumes.secret]]
+          name = "root-secret-cacert"
+          mount_path = "/etc/gitlab-runner/certs"
+        [[runners.kubernetes.volumes.secret]]
+          name = "registry-secret-cacert"
+          mount_path = "/etc/docker/certs.d/registry.gitlab.homelab.internal"
+        [[runners.kubernetes.volumes.host_path]]
+          name = "modules"
+          mount_path = "/lib/modules"
+          host_path = "/lib/modules"
+          read_only = true
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10

@@ -73,6 +73,9 @@ kubectl create ns cert-manager
 kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
 kubectl create ns victoria-metrics-k8s-stack
 kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
+kubectl create ns gitlab-runner
+kubectl -n gitlab-runner create secret generic root-secret-cacert --from-file=ca.crt --from-file=gitlab.homelab.internal.crt=ca.crt
+kubectl -n gitlab-runner create secret generic registry-secret-cacert --from-file=ca.crt
 ```
 
 5. Import `ca.crt` to local system:
