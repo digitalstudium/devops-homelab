@@ -112,6 +112,9 @@ yamls:
       namespace: external-dns
       annotations:
         argocd.argoproj.io/sync-wave: "2"
+    - name: external-secrets
+      annotations:
+        argocd.argoproj.io/sync-wave: "7"
   vmkube-1:
     - name: victoria-metrics-k8s-stack
       annotations:
