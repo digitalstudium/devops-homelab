@@ -31,7 +31,7 @@ Get a token for this service account, vmkube-2 api endpoint and ca cert:
 
 ```bash
 kubectl config use-context admin@vmkube-2
-export VMKUBE_2_OPENBAO_TOKEN=$(kubectl create token openbao-auth-delegator -n external-secrets)
+export VMKUBE_2_OPENBAO_TOKEN=$(kubectl get secret openbao-auth-delegator-token -n external-secrets -o jsonpath='{.data.token}' | base64 -d)
 export VMKUBE_2_API_ENDPOINT=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 kubectl config view --raw --minify -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 -d > vmkube-2-ca.crt
 ```

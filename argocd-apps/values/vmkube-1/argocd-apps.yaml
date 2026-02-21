@@ -119,6 +119,9 @@ yamls:
     - name: victoria-metrics-k8s-stack
       annotations:
         argocd.argoproj.io/sync-wave: "2"
+    - name: kargo
+      annotations:
+        argocd.argoproj.io/sync-wave: "4"
   vmkube-2:
     - name: victoria-metrics-k8s-stack
       annotations:

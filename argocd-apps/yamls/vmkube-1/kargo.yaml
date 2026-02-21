@@ -1,0 +1,137 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: ClusterPromotionTask
+metadata:
+  name: promote-app
+spec:
+  vars:
+    - name: team
+    - name: appName
+    - name: env
+    - name: sharedWarehouse
+      value: ${{ vars.appName }}
+    - name: stageSpecificWarehouse
+      value: ${{ vars.appName }}-${{ vars.env }}
+    - name: repoURL
+      value: https://gitlab.homelab.internal/devops/kargo-apps.git
+    - name: outputBranch
+      value: stage/${{ vars.env }}
+    - name: chartRepo
+      value: https://registry.nixys.io/chartrepo/public
+    - name: chartName
+      value: nxs-universal-chart
+    - name: appFolder
+      value: projects/${{ vars.team }}/${{ vars.appName }}
+    - name: manifestsPath
+      value: ${{ vars.appFolder }}/${{ vars.env }}/manifests
+  steps:
+    # ── Read-only clones from main ───────────────────────────────────────
+
+    # 1. Shared source (base values, image, chart info)
+    - uses: git-clone
+      as: clone-shared
+      config:
+        repoURL: ${{ vars.repoURL }}
+        checkout:
+          - commit: ${{ commitFrom(vars.repoURL, warehouse(vars.sharedWarehouse)).ID }}
+            path: ./src
+
+    # 2. Stage-specific config (extra.yaml)
+    - uses: git-clone
+      as: clone-stage-config
+      config:
+        repoURL: ${{ vars.repoURL }}
+        checkout:
+          - commit: ${{ commitFrom(vars.repoURL, warehouse(vars.stageSpecificWarehouse)).ID }}
+            path: ./stage-cfg
+
+    # ── Output branch (manifests only) ───────────────────────────────────
+
+    # 3. Clone output branch (create if first run)
+    - uses: git-clone
+      as: clone-output
+      config:
+        repoURL: ${{ vars.repoURL }}
+        checkout:
+          - branch: ${{ vars.outputBranch }}
+            create: true
+            path: ./out
+
+    # 4. Wipe output branch — no stale manifests from previous renders
+    - uses: git-clear
+      config:
+        path: ./out
+
+    # ── Prepare values (temp workspace, never committed) ─────────────────
+
+    # 5. Create working directory for chart + values
+    - uses: cmd
+      config:
+        command: mkdir -p ./work/charts
+
+    # 6. Copy base values to temp workspace
+    - uses: copy
+      config:
+        inPath: ./src/${{ vars.appFolder }}/base/values.yaml
+        outPath: ./work/values.yaml
+
+    # 7. Patch image tag
+    - uses: yaml-update
+      as: update-image
+      config:
+        path: ./work/values.yaml
+        updates:
+          - key: deployment.image.tag
+            value: ${{ imageFrom(vars.appName).Tag }}
+          - key: deployment.image.repository
+            value: ${{ imageFrom(vars.appName).Repository }}
+    # ── Helm chart ───────────────────────────────────────────────────────
+
+    # 8. Download chart
+    - uses: http-download
+      as: fetch-chart
+      config:
+        url: ${{ vars.chartRepo }}/${{ vars.chartName }}-${{ chartFrom(vars.chartRepo, vars.chartName).Version }}.tgz
+        outPath: ./work/charts/${{ vars.chartName }}.tgz
+        headers:
+          - name: Accept
+            value: application/gzip
+        allowOverwrite: true
+
+    # 9. Extract chart
+    - uses: untar
+      as: extract-chart
+      config:
+        inPath: ./work/charts/${{ vars.chartName }}.tgz
+        outPath: ./work/charts/${{ vars.chartName }}
+
+    # ── Render → output branch ───────────────────────────────────────────
+
+    # 10. Helm template into the output branch working tree
+    - uses: helm-template
+      as: render
+      config:
+        path: ./work/charts/${{ vars.chartName }}
+        releaseName: ${{ vars.appName }}
+        valuesFiles:
+          - ./work/values.yaml # patched base
+          - ./stage-cfg/${{ vars.appFolder }}/${{ vars.env }}/extra.yaml # stage-specific
+        outPath: ./out/${{ vars.manifestsPath }}
+
+    # ── Commit & push (only ./out → stage branch) ───────────────────────
+
+    # 11. Commit
+    - uses: git-commit
+      as: commit
+      config:
+        path: ./out
+        message: >-
+          ${{ vars.env }}: image=${{ imageFrom(vars.appName).Tag }}
+          chart=${{ chartFrom(vars.chartRepo, vars.chartName).Version }}
+          base=${{ commitFrom(vars.repoURL, warehouse(vars.sharedWarehouse)).ID }}
+          config=${{ commitFrom(vars.repoURL, warehouse(vars.stageSpecificWarehouse)).ID }}
+
+    # 12. Push to stage branch
+    - uses: git-push
+      config:
+        path: ./out
+        targetBranch: ${{ vars.outputBranch }}
