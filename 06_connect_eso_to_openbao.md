@@ -18,7 +18,7 @@ Since OpenBao is inside vmkube-1, it can use the in-cluster service account to t
 kubectl -n openbao exec -it vmkube-1-openbao-0 -- \
     sh -c "export VAULT_TOKEN=<root-token>; \
     bao write auth/vmkube-1/config \
-    kubernetes_host='https://\$KUBERNETES_SERVICE_HOST:\$KUBERNETES_SERVICE_PORT' \
+    kubernetes_host='https://kubernetes.default.svc.cluster.local' \
     kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
     token_reviewer_jwt=\"\$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\""
 ```
