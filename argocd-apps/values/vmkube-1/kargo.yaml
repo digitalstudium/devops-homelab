@@ -13,3 +13,7 @@ api:
   adminAccount:
     passwordHash: $2y$10$y5mpwUDfmbm4fa3nS7CuReDMTgX8uFYJzyQkhAnmXBS.z1Yp0077y
     tokenSigningKey: QOZZBS2DuX4EhwpgOeRARIwxKzlrs3XQ
+
+controller:
+  cabundle:
+    secretName: root-secret-cacert

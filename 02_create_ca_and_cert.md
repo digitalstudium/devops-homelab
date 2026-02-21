@@ -66,11 +66,17 @@ export KUBECONFIG=~/.kube/vmkube
 kubectl config use-context admin@vmkube-1
 kubectl create ns cert-manager
 kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
+kubectl create ns kargo
+kubectl -n kargo create secret generic root-secret-cacert --from-file=ca.crt
+kubectl create ns external-secrets
+kubectl -n external-secrets create secret generic root-secret-cacert --from-file=ca.crt
 kubectl create ns victoria-metrics-k8s-stack
 kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
 kubectl config use-context admin@vmkube-2
 kubectl create ns cert-manager
 kubectl -n cert-manager create secret tls root-secret --cert=ca.crt --key=ca.key
+kubectl create ns external-secrets
+kubectl -n external-secrets create secret generic root-secret-cacert --from-file=ca.crt
 kubectl create ns victoria-metrics-k8s-stack
 kubectl -n victoria-metrics-k8s-stack create secret generic root-secret-cacert --from-file=cacert=ca.crt
 kubectl create ns gitlab-runner
