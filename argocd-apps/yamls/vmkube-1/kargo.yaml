@@ -13,9 +13,9 @@ spec:
     - name: chartRepo
     - name: chartName
     - name: baseWarehouse
-      value: ${{ vars.appName }}
+      value: ${{ vars.appName }}-wh
     - name: stageWarehouse
-      value: ${{ vars.appName }}-${{ vars.env }}
+      value: ${{ vars.appName }}-${{ vars.env }}-wh
     - name: appFolder
       value: projects/${{ vars.team }}/${{ vars.appName }}
     - name: baseValuesFile
@@ -35,20 +35,6 @@ spec:
         checkout:
           - commit: ${{ commitFrom(vars.gitRepo, warehouse(vars.baseWarehouse)).ID }}
             path: ./src-base
-
-    - uses: git-clone
-      as: clone-stage
-      config:
-        repoURL: ${{ vars.gitRepo }}
-        checkout:
-          - commit: ${{ commitFrom(vars.gitRepo, warehouse(vars.stageWarehouse)).ID }}
-            path: ./src-stage
-
-    - uses: git-clone
-      as: clone-output
-      config:
-        repoURL: ${{ vars.gitRepo }}
-        checkout:
           - branch: ${{ vars.outputBranch }}
             create: true
             path: ./out
@@ -57,13 +43,32 @@ spec:
       config:
         path: ./out
 
+    - if: ${{ commitFrom(vars.gitRepo, warehouse(vars.stageWarehouse)) != null }}
+      uses: git-clone
+      as: clone-stage
+      config:
+        repoURL: ${{ vars.gitRepo }}
+        checkout:
+          - commit: ${{ commitFrom(vars.gitRepo, warehouse(vars.stageWarehouse)).ID }}
+            path: ./src-stage
+
+    # for the first promotion of Freight from the base warehouse clone main instead of stage
+    - if: ${{ commitFrom(vars.gitRepo, warehouse(vars.stageWarehouse)) == null }}
+      uses: git-clone
+      as: clone-main
+      config:
+        repoURL: ${{ vars.gitRepo }}
+        checkout:
+          - branch: main
+            path: ./src-stage
+
     - uses: yaml-update
       as: update-image
       config:
         path: ./src-base/${{ vars.baseValuesFile }}
         updates:
           - key: deployment.image.tag
-            value: ${{ imageFrom(vars.imageRepo).Tag }}
+            value: ${{ imageFrom(vars.imageRepo, warehouse(vars.baseWarehouse)).Tag }}
           - key: deployment.image.repository
             value: ${{ imageFrom(vars.imageRepo).RepoURL }}
 
@@ -99,9 +104,10 @@ spec:
       config:
         path: ./out
         message: >-
-          ${{ vars.env }}: image=${{ imageFrom(vars.imageRepo).Tag }}
-          chart=${{ chartFrom(vars.chartRepo, vars.chartName).Version }}
-          values=${{ commitFrom(vars.gitRepo, warehouse(vars.appName)).ID }}
+          ${{ vars.env }}: source-warehouse=${{ ctx.targetFreight.origin.name }}
+            image=${{ imageFrom(vars.imageRepo, warehouse(vars.baseWarehouse)).Tag }}
+            chart=${{ chartFrom(vars.chartRepo, vars.chartName).Version }}
+            commit=${{ commitFrom(vars.gitRepo, warehouse(ctx.targetFreight.origin.name)).ID }}
 
     - uses: git-push
       config:

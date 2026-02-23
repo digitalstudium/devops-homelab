@@ -64,7 +64,7 @@ itemTemplates:
           metadata:
             name: '{{ $.project }}-{{ $app }}-{{`{{ .stage }}`}}'
             annotations:
-              kargo.akuity.io/authorized-stage: {{ $.project }}:{{ $app }}-{{`{{ .stage }}`}}
+              kargo.akuity.io/authorized-stage: {{ $.project }}:{{ $app }}-{{`{{ .stage }}`}}-stage
           spec:
             project: {{ $.project }}
             destination:

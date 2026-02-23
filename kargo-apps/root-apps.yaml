@@ -42,7 +42,7 @@ spec:
   sources:
     - repoURL: "https://helm.digitalstudium.com"
       chart: kargo-apps
-      targetRevision: 0.0.10
+      targetRevision: 0.0.15
       helm:
         valueFiles:
           - $values/kargo-apps.yaml
