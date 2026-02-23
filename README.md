@@ -19,3 +19,7 @@ Follow instructions in these files:
 [**04_install_argocd.md**](https://github.com/digitalstudium/devops-homelab/blob/main/04_install_argocd.md)
 
 [**05_install_argocd_apps.md**](https://github.com/digitalstudium/devops-homelab/blob/main/05_install_argocd_apps.md)
+
+[**06_connect_eso_to_openbao.md**](https://github.com/digitalstudium/devops-homelab/blob/main/06_connect_eso_to_openbao.md)
+
+[**07_install_kargo_apps.md**](https://github.com/digitalstudium/devops-homelab/blob/main/07_install_kargo_apps.md)
