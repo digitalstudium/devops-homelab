@@ -1,0 +1,9 @@
+deployment:
+  replicas: 3
+
+ingress:
+  hosts:
+    - host: sample-app.vmkube-1.homelab.internal
+      paths:
+        - path: /
+          pathType: Prefix

@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kargo-root-argocd-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: "https://argoproj.github.io/argo-helm"
+      chart: argocd-apps
+      targetRevision: 2.0.4
+      helm:
+        valueFiles:
+          - $values/argocd-apps.yaml
+    - repoURL: https://gitlab.homelab.internal/devops/kargo-apps.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    name: vmkube-1
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kargo-root-kargo-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: "https://helm.digitalstudium.com"
+      chart: kargo-apps
+      targetRevision: 0.0.10
+      helm:
+        valueFiles:
+          - $values/kargo-apps.yaml
+    - repoURL: https://gitlab.homelab.internal/devops/kargo-apps.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    name: vmkube-1
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true

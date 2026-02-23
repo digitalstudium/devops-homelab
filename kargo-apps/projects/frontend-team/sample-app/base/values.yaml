@@ -1,0 +1,52 @@
+applicationName: sample-app
+
+deployment:
+  imagePullSecrets:
+    - name: gitlab-registry-secret
+  image:
+    repository: placeholder
+    tag: placeholder
+  env:
+    FF_ENABLE_FEATURE1:
+      value: "true"
+
+service:
+  ports:
+    - port: 8000
+      name: http
+      protocol: TCP
+      targetPort: 8000
+
+ingress:
+  enabled: true # enable Ingress
+
+extraObjects:
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: gitlab-registry-secret
+    spec:
+      refreshInterval: "0"
+      secretStoreRef:
+        name: openbao-store
+        kind: ClusterSecretStore
+      data:
+        - secretKey: registryToken
+          remoteRef:
+            key: frontend-team
+            property: registryToken
+      target:
+        name: gitlab-registry-secret
+        template:
+          data:
+            .dockerconfigjson: |
+              {
+                "auths": {
+                  "registry.gitlab.homelab.internal": {
+                    "username": "token",
+                    "password": "{{`{{ .registryToken }}`}}",
+                    "auth": "{{`{{ printf "token:%s" .registryToken | b64enc }}`}}"
+                  }
+                }
+              }
+          type: kubernetes.io/dockerconfigjson

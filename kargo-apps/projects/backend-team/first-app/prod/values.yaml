@@ -1,0 +1,9 @@
+deployment:
+  replicas: 2
+
+ingress:
+  hosts:
+    - host: first-app.vmkube-1.homelab.internal
+      paths:
+        - path: /
+          pathType: Prefix

@@ -1,0 +1,33 @@
+projects:
+  frontend-team:
+    apps:
+      sample-app:
+        namespace: example
+      another-sample-app:
+        namespace: example
+  backend-team:
+    apps:
+      first-app:
+        namespace: example
+      second-app:
+        namespace: example
+
+stages:
+  test:
+    cluster: vmkube-2
+    color: green
+  prod:
+    cluster: vmkube-1
+    color: yellow
+    dependsOn: test
+
+promotionTask: promote-app
+
+git:
+  repoURL: https://gitlab.homelab.internal/devops/kargo-apps.git
+image:
+  repoURL: registry.gitlab.homelab.internal
+chart:
+  repoURL: https://stakater.github.io/stakater-charts
+  name: application
+  semverConstraint: ^6.16.1

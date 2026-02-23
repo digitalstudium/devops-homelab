@@ -1,0 +1,89 @@
+itemTemplates:
+  - items:
+      - project: frontend-team
+        sourceRepo: https://gitlab.homelab.internal/devops/kargo-apps.git
+        namespaces:
+          - example
+      - project: backend-team
+        sourceRepo: https://gitlab.homelab.internal/devops/kargo-apps.git
+        namespaces:
+          - example
+    template: |-
+      apiVersion: argoproj.io/v1alpha1
+      kind: AppProject
+      metadata:
+        name: {{ .project }}
+        namespace: argocd
+      spec:
+        sourceRepos:
+          - {{ .sourceRepo }}
+        destinations:
+          {{- range .namespaces }}
+          - name: "*"
+            namespace: {{ . }}
+            server: "*"
+          {{- end }}
+        clusterResourceWhitelist:
+          - group: ""
+            kind: Namespace
+        namespaceResourceWhitelist:
+          - group: "*"
+            kind: "*"
+  - items:
+      - project: frontend-team
+        apps:
+          sample-app:
+            namespace: example
+          another-sample-app:
+            namespace: example
+      - project: backend-team
+        apps:
+          first-app:
+            namespace: example
+          second-app:
+            namespace: example
+    template: |-
+      {{ range $app, $appValues := .apps }}
+      apiVersion: argoproj.io/v1alpha1
+      kind: ApplicationSet
+      metadata:
+        name: {{ $.project }}-{{ $app }}
+        namespace: argocd
+      spec:
+        goTemplate: true
+        goTemplateOptions:
+          - missingkey=error
+        generators:
+          - list:
+              elements:
+              - stage: prod
+                cluster: vmkube-1
+              - stage: test
+                cluster: vmkube-2
+        template:
+          metadata:
+            name: '{{ $.project }}-{{ $app }}-{{`{{ .stage }}`}}'
+            annotations:
+              kargo.akuity.io/authorized-stage: {{ $.project }}:{{ $app }}-{{`{{ .stage }}`}}
+          spec:
+            project: {{ $.project }}
+            destination:
+              name: '{{`{{ .cluster }}`}}'
+              namespace: {{ $appValues.namespace }}
+            source:
+              repoURL: https://gitlab.homelab.internal/devops/kargo-apps.git
+              path: 'projects/{{ $.project }}/{{ $app }}/{{`{{ .stage }}`}}'
+              targetRevision: stage/{{`{{ .stage }}`}}
+              directory:
+                recurse: true
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+                allowEmpty: true
+              syncOptions:
+                - CreateNamespace=true
+                - ServerSideApply=true
+                - ApplyOutOfSyncOnly=true
+      ---
+      {{- end }}
