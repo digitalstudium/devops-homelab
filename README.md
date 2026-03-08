@@ -1,6 +1,26 @@
 ## Description
 
-DevOps Kubernetes home lab with: GitLab, ArgoCD, Local path provisioner, Metallb, Traefik Ingress Controller, Cert-manager, External DNS, Istio, VictoriaMetrics + Grafana etc., Zalando Postgres Operator
+## Components
+
+This homelab includes the following components:
+
+- **GitLab** – separate VM
+
+Two Kubernetes clusters on Talos Linux VMs with:
+- **Local Path Provisioner** – storage
+- **MetalLB** – ip addresses for load balancers
+- **Traefik Ingress Controller** – ingress 
+- **Istio** – service mesh
+- **GitLab Runner** – executes GitLab CI jobs
+- **ArgoCD** – GitOps continuous delivery
+- **Kargo** – GitOps continuous promotion
+- **Cert-manager** – automated TLS certificate issuing for ingress
+- **External DNS** – automated DNS records creation for ingress
+- **OpenBao** – secrets storage (fork of Vault)
+- **External Secrets Operator** – syncs secrets from OpenBao to Kubernetes
+- **VictoriaMetrics** – metrics storage and monitoring
+- **Grafana** – metrics visualization and dashboards
+- **Zalando Postgres Operator** – PostgreSQL database management on Kubernetes
 
 ## System Requirements:
 
